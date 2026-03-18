@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import "tailwindcss";
+
+
+.inter {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+
+}
+
+:root {
+  --back: #0B1220;
+  --btn: #1F3A5F;
+  --side: #0F172A;
+  --card: #0F172A;
+}
