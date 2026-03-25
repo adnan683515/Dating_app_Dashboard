@@ -82,9 +82,6 @@ export const getLineUpofEvent = async (id: string) => {
 }
 
 
-
-
-
 export const formatDateTime = (date: string) => {
   return new Date(date).toLocaleString("en-US", {
     dateStyle: "medium",
@@ -98,3 +95,11 @@ export const getStatus = (status: string) => {
   if (status === "ENDED") return "Ended";
   return status;
 };
+
+
+export const attendanceEvent = async (page: number, eventId: string) => {
+
+  const response = await sequreApi.get(`/booking/get-all-joined-member/${eventId}?fields=-eventId&page=${page}`)
+
+  return response.data.data;
+}

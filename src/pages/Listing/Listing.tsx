@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import AddEventModal from "./EventModal";
 import { useEvents } from "./getAllEvents";
+import Loader from "../Loader/Loader";
 // import AddEventModal from "./AddEventModal";
 
 export default function EventPage() {
@@ -14,12 +15,17 @@ export default function EventPage() {
 
   const { data, isLoading, error } = useEvents({ page: currentPage, limit: 15, status: '', tags: 'VIP' });
 
-  if (isLoading) return <div>Loading events...</div>;
+
+
+
+
+
+
+  if (isLoading) return <div className="flex justify-center items-center  min-h-screen">
+
+    <Loader></Loader>
+  </div>;
   if (error) return <div>Error loading events</div>;
-
-  console.log(data, "event")
-
-
 
   return (
     <div className="p-6 bg-black min-h-screen text-white">
