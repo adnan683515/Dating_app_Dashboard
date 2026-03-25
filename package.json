@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@amcharts/amcharts5": "^5.15.4",
+    "@headlessui/react": "^2.2.9",
+    "@react-google-maps/api": "^2.20.8",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-query": "^5.90.21",
     "axios": "^1.13.6",

@@ -26,3 +26,11 @@ export const WarningToast = ()=>{
   toast.warning("Hey Joseph! Don't worry we are working continuously 😊")
 
 }
+
+
+export enum EventTags {
+  VIP = "VIP",
+  NEARBY = "NEARBY",
+  ROOFTOP = "ROOFTOP",
+  OUTDOOR = "OUTDOOR",
+}

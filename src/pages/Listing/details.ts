@@ -68,3 +68,33 @@ export const fetchListingById = async (id: string): Promise<SingleListingRespons
   const response = await sequreApi.get(`/listings/${id}`);
   return response.data;
 };
+
+
+export const fetchEvent = async (id: string) => {
+  const res = await sequreApi.get(`/event/get-event-details/${id}`);
+  return res.data.data;
+};
+
+export const getLineUpofEvent = async (id: string) => {
+
+  const res = await sequreApi.get(`/lineup/lineup-data?eventId=${id}&fields=-isDelete,-eventId`);
+  return res.data.data;
+}
+
+
+
+
+
+export const formatDateTime = (date: string) => {
+  return new Date(date).toLocaleString("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+};
+
+export const getStatus = (status: string) => {
+  if (status === "NOSTART") return "No Start";
+  if (status === "ONGOING") return "Ongoing";
+  if (status === "ENDED") return "Ended";
+  return status;
+};

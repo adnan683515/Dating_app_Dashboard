@@ -6,8 +6,8 @@ import Login from "../pages/Auth/Login";
 import BoostedListing from "../pages/Boosted/BoostedListing";
 import ContentMod from "../pages/Content/ContentMod";
 import Dashboard from "../pages/Dashboard/Dashboard";
-import DetailsOfListing from "../pages/Listing/DetailsOfListing";
-import Listing from "../pages/Listing/Listing";
+import EventDetails from "../pages/Listing/EventDetails";
+import EventPage from "../pages/Listing/Listing";
 import Notification from "../pages/Notification/Notification";
 import SettginsPage from "../pages/SettingsPage/SettginsPage";
 import UserManagement from "../pages/UserManagement/UserManagement";
@@ -37,12 +37,12 @@ export const router = createBrowserRouter([
                 path: "user",
                 Component: UserManagement,
             }, {
-                path: "listing",
-                Component: Listing
+                path: "add-event",
+                Component: EventPage
             }
             , {
-                path: "/dashboard/listing/:id",
-                Component: DetailsOfListing
+                path: "/dashboard/event-details/:id",
+                Component: EventDetails
             }, {
                 path: "verification",
                 Component: Verification

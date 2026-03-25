@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router';
-import logo from '../assets/Logo.png';
+import logo from '../assets/truth.png';
 // import AuthHook from '../Hooks/AuthHook';
 
 const paths = {
@@ -66,7 +66,7 @@ const MainLayout: React.FC = () => {
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', },
     { icon: Menu, label: 'User Management', path: '/dashboard/user' },
-    { icon: CircleCheck, label: 'Listings', path: '/dashboard/listing' },
+    { icon: CircleCheck, label: 'Add Event', path: '/dashboard/add-event' },
     { icon: Users, label: 'Verification', path: '/dashboard/verification' },
     { icon: Flag, label: 'Moderation', path: '/dashboard/content' },
     { icon: TrendingUp, label: 'Boosted Listings', path: '/dashboard/boosted' },
@@ -85,7 +85,7 @@ const MainLayout: React.FC = () => {
 
 
   return (
-    <div className="h-screen w-full bg-(--back) flex overflow-hidden">
+    <div className="h-screen w-full bg-black flex overflow-hidden">
 
       <AnimatePresence>
         {isSidebarOpen && (
@@ -184,7 +184,7 @@ const SidebarContent = ({ items, onClose, location }: SidebarContentProps) => (
 
   <div className="flex flex-col h-full">
     <div className="mb-4 px-2 flex justify-between items-center shrink-0">
-      <img className='w-[80%] sm:w-full' src={logo} alt="" />
+      <img className='w-[80%] sm:w-[70%] mx-auto' src={logo} alt="" />
       {onClose && <button onClick={onClose} className="lg:hidden p-1 text-white"><X size={20} /></button>}
     </div>
 
@@ -199,9 +199,9 @@ const SidebarContent = ({ items, onClose, location }: SidebarContentProps) => (
           }}
 
           className={`
-  flex items-center gap-3 hover:scale-95 text-white px-4 py-3 rounded-xl
+  flex items-center gap-3 hover:scale-95  px-4 py-3 rounded-xl
   transition-all leading-2 capitalize sm:text-[20px] group
-  ${location === item.path ? 'bg-[#1F3A5F]' : ''}
+  ${location === item.path ? ' bg-[#C7B268] text-black ' : 'text-white'}
   hover:bg-[#1F3A5F]
 `}
         >

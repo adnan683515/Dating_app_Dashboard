@@ -10,33 +10,76 @@ export interface Props {
   children: React.ReactNode;
 }
 
-
-
-export interface IAuths {
+// Auth Provider
+export interface IAuth {
   provider: string;
   providerId: string;
 }
 
+// Geo Location (MongoDB GeoJSON)
+export interface IGeoLocation {
+  type: "Point";
+  coordinates: [number, number]; // [longitude, latitude]
+}
+
+// User Model
 export interface IUser {
   _id: string;
-  fullName: string;
+  displayName: string;
   email: string;
-  badge: boolean;
-  isActive: string;
-  isDeleted: boolean;
+  image: string;
+
+  role: "ADMIN" | "USER";
+
+  bio?: string;
+
+  location: IGeoLocation;
+  lat: number;
+  long: number;
+  userLocation: string;
+
+  age: number;
+
+  // Availability
+  availableForDate: boolean;
+  availableForDance: boolean;
+  availableForFriend: boolean;
+
+  // Notifications
+  newMatchesNotification: boolean;
+  messageAlertsNotification: boolean;
+  eventRemindersNotification: boolean;
+
+  // Status
   isVerified: boolean;
-  role: string;
-  auths: IAuths[];
+  status: "ACTIVE" | "INACTIVE" | "BLOCKED";
+
+  // Relations
+  interests: string[];
+  auths: IAuth[];
+
+  // Optional
+  fcmToken?: string | null;
+
   createdAt: string;
   updatedAt: string;
-  verifiedBadge?: string | null;
-  verifiedBadgeExpiration?: string | null;
-  bio?: string;
-  location?: string;
-  avatar?: string;
-  followingCount: number;
-  followerCount: number;
-  listingCount: number;
+}
+
+// Auth Response
+export interface ILoginResponse {
+  success: boolean;
+  message: string;
+  data: {
+    accessToken: string;
+    refreshToken: string;
+    user: IUser;
+  };
+}
+
+export interface IGetMeResponse {
+  success: boolean;
+  message: string;
+  data: IUser;
 }
 
 export interface IValue {

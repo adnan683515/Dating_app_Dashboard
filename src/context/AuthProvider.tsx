@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { Authcontext } from "./AuthContext";
-import type { IValue, IUser } from "../config/contextType";
 import React from "react";
 import sequreApi from "../axios/axiosSequre";
+import type { IGetMeResponse, IValue } from "../config/contextType";
+import { Authcontext } from "./AuthContext";
 
 interface Props {
   children: React.ReactNode;
@@ -11,23 +11,26 @@ interface Props {
 const AuthProvider = ({ children }: Props) => {
 
 
-  const { data, isLoading, refetch } = useQuery<IUser>({
+  const { data, isLoading, refetch } = useQuery<IGetMeResponse>({
     queryKey: ["currentUser"],
     queryFn: async () => {
-      const res = await sequreApi.get("/users/get_me"); 
-      return res.data.data; 
+      const res = await sequreApi.get("/user/getMe");
+      return res.data;
     },
     staleTime: 1000 * 60 * 5, // 5 মিনিট cache
     retry: false,
   });
 
+  console.log("get me",data)
 
 
   const value: IValue = {
-    user: data || null,
+    user: data?.data || null,
     refetchUser: refetch,
     loading: isLoading,
   };
+
+
 
   return (
     <Authcontext.Provider value={value}>
