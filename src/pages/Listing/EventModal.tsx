@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { useMutation } from "@tanstack/react-query";
+import { X } from "lucide-react";
+import { useState } from "react";
 import sequreApi from "../../axios/axiosSequre";
 import { EventTags } from "../../config/type";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
-import { X } from "lucide-react";
 
 export default function AddEventModal({ onClose }: { onClose: () => void }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [form, setForm] = useState<any>({
     title: "",
     fee: "",

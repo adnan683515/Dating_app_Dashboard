@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { BadgeDollarSign, ChevronLeft, ChevronRight, House, MapPin, Users } from "lucide-react";
+import { BadgeDollarSign, ChevronLeft, ChevronRight, EllipsisVertical, House, MapPin, Users } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
-import { attendanceEvent, fetchEvent, formatDateTime, getLineUpofEvent, getStatus } from "./details";
+import { toast } from "sonner";
 import Loader from "../Loader/Loader";
-import { useState } from "react";
-
+import { addLineUpofEvent, attendanceEvent, deleteLineup, fetchEvent, formatDateTime, getLineUpofEvent, getStatus, updateLineupapi } from "./details";
 
 
 
@@ -32,7 +32,15 @@ export default function EventDetails() {
   const { id } = useParams();
   const [page, setPage] = useState<number>(1)
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [inputArray, setInputArray] = useState<number[]>([1])
+  const [inputs, setInputs] = useState<string[]>([""]);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const refs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const [editModal, setEditModal] = useState<boolean>(false)
+  const [editLineupValue, setEditLineupValue] = useState<string>("")
+  const [lineupId, setLineupID] = useState<string>("")
+  const [lineuppage, setLineupPage] = useState<number>(1)
+
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["event", id],
@@ -40,31 +48,133 @@ export default function EventDetails() {
   });
 
 
-  const { data: lineupData, isLoading: lineupLoading } = useQuery({
-    queryKey: [id],
-    queryFn: () => getLineUpofEvent(id as string)
+  // lineup get
+  const { data: lineupData, isLoading: lineupLoading, refetch } = useQuery({
+    queryKey: [id, lineuppage],
+    queryFn: () => getLineUpofEvent(id as string, lineuppage as number)
   })
 
 
 
+  // all booking members get
   const { data: joinedData, isLoading: joningDataLoading } = useQuery({
     queryKey: ["joinedMembers", id, page],
     queryFn: () => attendanceEvent(page, id as string),
     enabled: !!id
   })
 
+  // Click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        openDropdownId &&
+        refs.current[openDropdownId] &&
+        !refs.current[openDropdownId]?.contains(event.target as Node)
+      ) {
+        setOpenDropdownId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openDropdownId]);
 
 
-  const handleInputField = (type: string) => {
+  console.log(lineupData, "lineupdata")
 
-    if (type === '+') {
-      setInputArray(prev => [...prev, prev.length + 1]); // add new item
-    }
 
-    if (type === '-') {
-      setInputArray(prev => prev.length > 1 ? prev.slice(0, -1) : prev); // remove last item
+
+  const handleChange = (index: number, value: string) => {
+    const updated = [...inputs];
+    updated[index] = value;
+    setInputs(updated);
+  };
+
+  const handleInputField = (type: string, index: number) => {
+    if (type === "+") {
+      setInputs([...inputs, ""]);
+    } else {
+      const updated = inputs.filter((_, i) => i !== index);
+      setInputs(updated);
     }
   };
+
+
+  // add lineup
+  const handleSave = async () => {
+    const payload = {
+      eventId: id,
+      lineups: inputs
+        .filter(name => name.trim() !== "")
+        .map(name => ({ name }))
+    };
+
+
+
+    const postResult = await addLineUpofEvent(payload)
+    if (postResult?.success) {
+      toast.success(postResult?.message)
+      setIsOpen(false)
+      refetch()
+
+    }
+    else {
+      toast.error(postResult?.message)
+      setIsOpen(false)
+    }
+  };
+
+
+  // lineup edit 
+  const editLineup = async (name: string, id: string) => {
+    setOpenDropdownId(null)
+    setEditModal(true)
+    setEditLineupValue(name)
+    setLineupID(id)
+
+  }
+
+  // update function of lineup
+
+  const updateLineupData = async () => {
+
+
+    const name = editLineupValue
+    if (!lineupId || !name) {
+      console.log("lineup id empty")
+      return
+    }
+    const result = await updateLineupapi(lineupId, name)
+    if (result?.success) {
+      refetch()
+      toast.success(result?.message)
+      setEditModal(false)
+    }
+    else {
+      toast.error(result?.message)
+      setEditModal(false)
+    }
+
+  }
+  const deleteLineupFn = async (id: string) => {
+
+
+
+    if (!id) {
+      console.log("lineup id empty")
+      return
+    }
+    const result = await deleteLineup(id)
+    if (result?.success) {
+      refetch()
+      toast.success(result?.message)
+      setEditModal(false)
+    }
+    else {
+      toast.error(result?.message)
+      setEditModal(false)
+    }
+
+  }
 
 
 
@@ -226,38 +336,43 @@ export default function EventDetails() {
 
 
                 <div className=" space-y-2">
-                  {inputArray?.map((item: number) => {
-                    return <div key={item} className="flex items-center gap-3">
+                  {inputs.map((value, index) => (
+                    <div key={index} className="flex items-center gap-3">
 
-                      {/* Input Field (text inside) */}
                       <input
                         type="text"
-                        placeholder="Enter value"
+                        value={value}
+                        onChange={(e) => handleChange(index, e.target.value)}
+                        placeholder="Enter performer name"
                         className="px-4 py-2 rounded-xl bg-gray-800 text-white outline-none w-[80%]"
                       />
 
-                      {/* Minus Button */}
-                      <button onClick={() => handleInputField('-')} className="w-10 cursor-pointer h-10 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded-xl text-white text-xl font-bold">
+                      <button
+                        onClick={() => handleInputField("-", index)}
+                        className="w-10 h-10 bg-gray-700 rounded-xl text-white"
+                      >
                         −
                       </button>
 
-                      {/* Plus Button */}
-                      <button onClick={() => handleInputField('+')} className="w-10 cursor-pointer h-10 flex items-center justify-center bg-[#C7B268] hover:bg-[#b59d5a] rounded-xl text-black text-xl font-bold">
+                      <button
+                        onClick={() => handleInputField("+", index)}
+                        className="w-10 h-10 bg-[#C7B268] rounded-xl text-black"
+                      >
                         +
                       </button>
 
                     </div>
-                  })}
+                  ))}
                 </div>
 
               </div>
 
               {/* Footer */}
               <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-700">
-                <button onClick={()=>setIsOpen(false)} className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition">
+                <button onClick={() => setIsOpen(false)} className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition">
                   Cancel
                 </button>
-                <button className="px-4 py-2 bg-[#C7B268] text-black rounded hover:bg-[#b59d5a] transition">
+                <button onClick={handleSave} className="px-4 py-2 bg-[#C7B268] text-black rounded hover:bg-[#b59d5a] transition">
                   Save
                 </button>
               </div>
@@ -268,23 +383,118 @@ export default function EventDetails() {
 
 
 
+        {editModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-9999 p-4">
+            <div className="relative bg-gray-900 rounded-2xl w-full max-w-lg shadow-lg overflow-hidden">
+
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700">
+                <h2 className="text-white text-xl font-semibold">Edit Performer Name</h2>
+                <button
+                  onClick={() => setEditModal(false)}
+                  className="text-gray-300 hover:text-white text-2xl font-bold transition-colors"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 text-gray-300">
+
+
+                <div className=" space-y-2">
+
+                  <div className="flex items-center gap-3">
+
+                    <input
+                      type="text"
+                      onChange={(e) => setEditLineupValue(e.target.value)}
+                      defaultValue={editLineupValue}
+                      placeholder="Enter performer name"
+                      className="px-4 py-2 rounded-xl bg-gray-800 text-white outline-none w-full"
+                    />
+
+
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              {/* Footer */}
+              <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-700">
+                <button onClick={() => setEditModal(false)} className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition">
+                  Cancel
+                </button>
+                <button onClick={updateLineupData} className="px-4 py-2 bg-[#C7B268] text-black rounded hover:bg-[#b59d5a] transition">
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+
+
 
         {/* Lineup Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1  sm:grid-cols-2 md:grid-cols-3 gap-4">
           {lineupData?.data && lineupData.data.length > 0 ? (
             lineupData.data.map((item: { name: string; _id: string }) => (
               <div
                 key={item._id}
                 className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur hover:scale-105 hover:border-[#C7B268] transition-all duration-300"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#C7B268] flex items-center justify-center text-black font-bold">
-                    {item.name.charAt(0).toUpperCase()}
+                <div className="flex justify-between">
+
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#C7B268] flex items-center justify-center text-black font-bold">
+                      {item.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">{item.name}</p>
+                      <p className="text-xs text-gray-400">Performer</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-white font-medium">{item.name}</p>
-                    <p className="text-xs text-gray-400">Performer</p>
+
+                  <div className="relative" ref={(el) => {
+                    refs.current[item._id] = el;
+                  }}>
+                    <button
+                      onClick={() =>
+                        setOpenDropdownId((prev) => (prev === item._id ? null : item._id))
+                      }
+                      className="p-2 rounded-full hover:bg-gray-700 transition"
+                    >
+                      <EllipsisVertical className="text-white w-5 h-5" />
+                    </button>
+
+                    {/* Dropdown */}
+                    {openDropdownId === item._id && (
+                      <div className="absolute right-0 bottom-full  w-36 bg-gray-800 text-white rounded-lg shadow-lg z-9999">
+                        <button
+                          className="block cursor-pointer text-sm w-full text-left px-4 py-2 hover:bg-gray-700 rounded-t-lg"
+                          onClick={() => editLineup(item?.name, item?._id)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="block cursor-pointer text-sm w-full text-left px-4 py-2 hover:bg-red-600 rounded-b-lg"
+                          onClick={() => {
+                            deleteLineupFn(item?._id)
+                    
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+
+
                   </div>
+
+
                 </div>
               </div>
             ))
@@ -295,10 +505,33 @@ export default function EventDetails() {
           )}
         </div>
 
+        <div className="flex justify-end gap-3 p-4 border-t mt-2 border-[#C7B268]">
+          <button
+            disabled={lineupData?.meta?.page === 1}
+            onClick={() => setLineupPage(lineuppage - 1)}
+            className="flex items-center justify-center px-4 py-2 border border-[#C7B268] text-[#C7B268] rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#C7B268] hover:text-black transition"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            disabled={lineuppage === lineupData?.meta?.totalpage || lineupData?.meta?.totalpage == 0 || lineupData?.meta?.total == 0}
+            onClick={() => setLineupPage(lineuppage + 1)}
+            className="flex items-center justify-center px-4 py-2 bg-[#C7B268] text-black rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-80 transition"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+
+
+
+
+
+
+
         {/* Joined Members */}
         <div className="mt-6">
           <h2 className="text-xl font-semibold text-white">Joined Members</h2>
-          <div className="p-4 bg-black text-white mt-2">
+          <div className="sm:p-4 bg-black text-white mt-2">
             <div className="border border-[#C7B268] rounded-2xl shadow-lg overflow-hidden">
 
               {/* Header */}

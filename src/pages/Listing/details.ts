@@ -75,9 +75,9 @@ export const fetchEvent = async (id: string) => {
   return res.data.data;
 };
 
-export const getLineUpofEvent = async (id: string) => {
+export const getLineUpofEvent = async (id: string, lineuppage: number) => {
 
-  const res = await sequreApi.get(`/lineup/lineup-data?eventId=${id}&fields=-isDelete,-eventId`);
+  const res = await sequreApi.get(`/lineup/lineup-data?eventId=${id}&fields=-isDelete,-eventId&page=${lineuppage}`);
   return res.data.data;
 }
 
@@ -102,4 +102,42 @@ export const attendanceEvent = async (page: number, eventId: string) => {
   const response = await sequreApi.get(`/booking/get-all-joined-member/${eventId}?fields=-eventId&page=${page}`)
 
   return response.data.data;
+}
+
+
+
+export const addLineUpofEvent = async (payload) => {
+  try {
+    const result = await sequreApi.post(`/lineup/lineup-create`, payload);
+    return result.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    return err.response?.data;
+  }
+};
+
+
+export const updateLineupapi = async (id: string, name: string) => {
+
+  try {
+    const result = await sequreApi.patch(`/lineup/update-line/${id}`, { name })
+    return result.data;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  catch (err: any) {
+    return err.response?.data;
+  }
+}
+
+
+export const deleteLineup = async (id: string) => {
+
+  try {
+    const result = await sequreApi.delete(`/lineup/delete-lineup/${id}`)
+    return result.data;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  catch (err: any) {
+    return err.response?.data;
+  }
 }

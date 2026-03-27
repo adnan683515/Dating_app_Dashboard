@@ -1,12 +1,34 @@
 
 
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, type JSX } from "react";
 import { Link } from "react-router";
 import AddEventModal from "./EventModal";
-import { useEvents } from "./getAllEvents";
+import { eventStatusCount, useEvents } from "./getAllEvents";
 import Loader from "../Loader/Loader";
-// import AddEventModal from "./AddEventModal";
+
+import { FaClock, FaDoorOpen, FaPlay, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { useQuery } from "@tanstack/react-query";
+
+
+
+
+
+const statusColors: Record<string, string> = {
+  NOSTART: "from-[#C7B268] to-[#A88B50]",
+  "OPEN DOOR": "from-[#FF00FF] to-[#D400D4]",
+  GOING: "from-green-500 to-green-700",
+  END: "from-gray-600 to-gray-800",
+  CANCELLED: "from-red-500 to-red-700",
+};
+
+const statusIcons: Record<string, JSX.Element> = {
+  NOSTART: <FaClock size={24} />,
+  "OPEN DOOR": <FaDoorOpen size={24} />,
+  GOING: <FaPlay size={24} />,
+  END: <FaCheckCircle size={24} />,
+  CANCELLED: <FaTimesCircle size={24} />,
+};
 
 export default function EventPage() {
   const [open, setOpen] = useState(false);
@@ -18,8 +40,24 @@ export default function EventPage() {
 
 
 
+  const { data: statusCount } = useQuery({
+    queryKey: ['statusCount'],
+    queryFn: (async () => {
+     const ans = await eventStatusCount()
+      return ans?.data
+    })
+  })
 
 
+    const statusData = {
+    NOSTART: statusCount?.NOSTART,
+    "OPEN DOOR":0,
+    GOING: statusCount?.GOING,
+    END: statusCount?.END,
+    CANCELLED: statusCount?.CANCELLED,
+  };
+
+console.log(statusCount)
 
   if (isLoading) return <div className="flex justify-center items-center  min-h-screen">
 
@@ -31,8 +69,25 @@ export default function EventPage() {
     <div className="p-6 bg-black min-h-screen text-white">
 
 
+
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
+        {Object.entries(statusData).map(([status, count]) => (
+          <div
+            key={status}
+            className={`relative p-6 rounded-2xl text-white flex flex-col items-center justify-center shadow-xl bg-gradient-to-br ${statusColors[status]} transform hover:scale-105 transition-all duration-300`}
+          >
+            <div className="absolute top-4 right-4 opacity-30">{statusIcons[status]}</div>
+            <h3 className="text-lg font-bold z-10">{status}</h3>
+            <p className="text-4xl font-extrabold z-10 mt-2">{count}</p>
+            <div className="mt-3 w-10 h-1 rounded-full bg-white/30 z-10"></div>
+          </div>
+        ))}
+      </div>
+
+
       {/* Dummy List */}
-      <div className="grid md:grid-cols-3 gap-4">
+      {/* <div className="grid md:grid-cols-3 gap-4">
         {[1, 2, 3].map((_, i) => (
           <div
             key={i}
@@ -43,7 +98,7 @@ export default function EventPage() {
             <p className="text-[#C7B268] font-bold mt-2">$500</p>
           </div>
         ))}
-      </div>
+      </div> */}
 
       {/* Header */}
       <div className="flex justify-between items-center mt-6">
@@ -133,43 +188,10 @@ export default function EventPage() {
 
         {/* Pagination */}
         <div className="flex justify-center mt-4 gap-2">
-          {/* {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrentPage(i + 1)}
-            className={`px-3 py-1 rounded border ${currentPage === i + 1 ? "bg-gray-700 text-white" : "bg-white text-gray-700"
-              }`}
-          >
-            {i + 1}
-          </button>
-        ))} */}
+
         </div>
 
-        {/* Modal */}
-        {/* <Dialog open={!!selectedEvent} onClose={closeModal} className="fixed z-50 inset-0 overflow-y-auto">
-        <div className="flex items-center justify-center min-h-screen p-4">
-          <Dialog.Panel className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
-            <Dialog.Title className="text-lg font-bold">{selectedEvent?.title}</Dialog.Title>
-            <Dialog.Description className="mt-2 text-gray-600">
-              <p>Status: {selectedEvent?.status}</p>
-              <p>Attendance: {selectedEvent?.attendanceTotal}</p>
-              <p>Venue: {selectedEvent?.venue}</p>
-              <p>
-                Date: {new Date(selectedEvent?.start_date_time || "").toLocaleString()} -{" "}
-                {new Date(selectedEvent?.end_date_time || "").toLocaleString()}
-              </p>
-            </Dialog.Description>
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-              >
-                Close
-              </button>
-            </div>
-          </Dialog.Panel>
-        </div>
-      </Dialog> */}
+
       </div>
 
 

@@ -51,7 +51,7 @@ const fetchEvents = async (params: {
   return res?.data?.data; // or res.data.data depending on your API
 };
 
-// ✅ Correct useQuery syntax for v4+
+
 export const useEvents = (params: {
   page?: number;
   limit?: number;
@@ -65,3 +65,16 @@ export const useEvents = (params: {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
+
+
+
+
+// get event status count
+export const eventStatusCount = async ()=>{
+
+  const data = await sequreApi.get('/event/admin-events-status-count')
+
+  return data?.data
+}
+
+// {{baseUrl}}/event/admin-events-status-count
