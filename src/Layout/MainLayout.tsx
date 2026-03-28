@@ -67,7 +67,7 @@ const MainLayout: React.FC = () => {
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', },
     { icon: Menu, label: 'User Management', path: '/dashboard/user' },
     { icon: CircleCheck, label: 'Add Event', path: '/dashboard/add-event' },
-    { icon: Users, label: 'Verification', path: '/dashboard/verification' },
+    { icon: Users, label: 'Category', path: '/dashboard/verification' },
     { icon: Flag, label: 'Moderation', path: '/dashboard/content' },
     { icon: TrendingUp, label: 'Boosted Listings', path: '/dashboard/boosted' },
     { icon: Bell, label: 'Notifications', path: '/dashboard/notification' },

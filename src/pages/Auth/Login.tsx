@@ -47,11 +47,11 @@ export default function Login() {
 
       console.log("Login Success:", res.data)
 
-      // 👉 token save
+      // token save
 
       localStorage.setItem("Token", res.data?.data?.accessToken)
 
-      // 👉 redirect (optional)
+      // edirect (optional)
       navigate('/dashboard')
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

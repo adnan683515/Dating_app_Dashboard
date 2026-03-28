@@ -77,13 +77,15 @@ export interface ILoginResponse {
 }
 
 export interface IGetMeResponse {
-  success: boolean;
-  message: string;
   data: IUser;
+  connected: number;
+  requestSend: number;
 }
 
+
+
 export interface IValue {
-  user: IUser | null;
+  user: IGetMeResponse | null;
   refetchUser: () => void;
   loading: boolean;
 }

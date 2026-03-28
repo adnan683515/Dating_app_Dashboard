@@ -15,22 +15,25 @@ const AuthProvider = ({ children }: Props) => {
     queryKey: ["currentUser"],
     queryFn: async () => {
       const res = await sequreApi.get("/user/getMe");
-      return res.data;
+      return res.data?.data;
     },
     staleTime: 1000 * 60 * 5, // 5 মিনিট cache
     retry: false,
   });
 
-  console.log("get me",data)
 
 
   const value: IValue = {
-    user: data?.data || null,
+    user: data
+      ? {
+        data: data.data,
+        connected: data.connected,
+        requestSend: data.requestSend,
+      }
+      : null,
     refetchUser: refetch,
     loading: isLoading,
   };
-
-
 
   return (
     <Authcontext.Provider value={value}>

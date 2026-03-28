@@ -41,7 +41,7 @@ export const router = createBrowserRouter([
                 Component: EventPage
             }
             , {
-                path: "/dashboard/event-details/:id",
+                path: "/dashboard/add-event/event-details/:id",
                 Component: EventDetails
             }, {
                 path: "verification",

@@ -15,7 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 
 
 const statusColors: Record<string, string> = {
-  NOSTART: "from-[#C7B268] to-[#A88B50]",
+  NOSTART: "from-[#C7B268] to-[#776a39]",
   "OPEN DOOR": "from-[#FF00FF] to-[#D400D4]",
   GOING: "from-green-500 to-green-700",
   END: "from-gray-600 to-gray-800",
@@ -43,21 +43,21 @@ export default function EventPage() {
   const { data: statusCount } = useQuery({
     queryKey: ['statusCount'],
     queryFn: (async () => {
-     const ans = await eventStatusCount()
+      const ans = await eventStatusCount()
       return ans?.data
     })
   })
 
 
-    const statusData = {
+  const statusData = {
     NOSTART: statusCount?.NOSTART,
-    "OPEN DOOR":0,
+    "OPEN DOOR": statusCount?.OPENDOOR,
     GOING: statusCount?.GOING,
     END: statusCount?.END,
     CANCELLED: statusCount?.CANCELLED,
   };
 
-console.log(statusCount)
+  console.log(statusCount)
 
   if (isLoading) return <div className="flex justify-center items-center  min-h-screen">
 
@@ -75,7 +75,7 @@ console.log(statusCount)
         {Object.entries(statusData).map(([status, count]) => (
           <div
             key={status}
-            className={`relative p-6 rounded-2xl text-white flex flex-col items-center justify-center shadow-xl bg-gradient-to-br ${statusColors[status]} transform hover:scale-105 transition-all duration-300`}
+            className={`relative p-6 rounded-2xl text-white flex flex-col items-center justify-center shadow-xl bg-linear-to-br ${statusColors[status]} transform hover:scale-105 transition-all duration-300`}
           >
             <div className="absolute top-4 right-4 opacity-30">{statusIcons[status]}</div>
             <h3 className="text-lg font-bold z-10">{status}</h3>
@@ -86,40 +86,29 @@ console.log(statusCount)
       </div>
 
 
-      {/* Dummy List */}
-      {/* <div className="grid md:grid-cols-3 gap-4">
-        {[1, 2, 3].map((_, i) => (
-          <div
-            key={i}
-            className="p-4 rounded-xl bg-[#0F172A] border border-white/10"
-          >
-            <h2 className="text-lg font-semibold">Event Title</h2>
-            <p className="text-sm text-gray-400">Dhaka, BD</p>
-            <p className="text-[#C7B268] font-bold mt-2">$500</p>
-          </div>
-        ))}
-      </div> */}
 
-      {/* Header */}
       <div className="flex justify-between items-center mt-6">
         <h1 className="text-2xl font-bold">All Events</h1>
 
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#C7B268] text-black font-semibold hover:opacity-90"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl     bg-linear-to-r from-[#C7B268] to-[#776a39] text-white font-semibold hover:opacity-90"
         >
           <Plus size={18} />
           Add Event
         </button>
       </div>
 
+      {/* overflow-x-auto mt-6 rounded-xl 
+  bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl */}
 
       <div className="p-4">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className="overflow-x-auto mt-6 rounded-xl 
+  bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl">
+          <table className="min-w-full rounded-xl divide-y divide-gray-200">
+            <thead className="bg-white/5 rounded-xl  backdrop-blur-lg border border-white/10 shadow-xl ">
               <tr>
-                <th className="px-4 py-2 text-left text-[16px] font-medium text-gray-500">Event</th>
+                <th className="px-4 py-2 text-center text-[16px] font-medium text-gray-500">Event</th>
                 <th className="px-4 py-2 text-left text-[16px]  font-medium text-gray-500">Category</th>
                 <th className="px-4 py-2 text-left text-[16px] font-medium text-gray-500">Fee</th>
                 {/* <th className="px-4 py-2 text-center text-[16px] font-medium text-gray-500">LineupMember</th> */}
@@ -130,8 +119,11 @@ console.log(statusCount)
             </thead>
             <tbody className="bg-black divide-y divide-gray-200">
               {data?.data?.map((event) => (
-                <tr key={event._id} className="hover:bg-gray-950 cursor-pointer">
+                <tr key={event._id} className="border-t border-white/10 hover:bg-white/10 transition">
                   <td className="px-4 py-2 flex items-center gap-3">
+
+                    <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
+
                     <img
                       src={event.image || "https://via.placeholder.com/60"}
                       alt={event.title}
@@ -165,13 +157,12 @@ console.log(statusCount)
                       : "No attendees yet"}
                   </td>
                   <td className="px-4 py-2 flex justify-center gap-2">
-                    <Link to={`/dashboard/event-details/${event?._id}`}>
-                      <button
-
-                        className="bg-linear-to-b from-[#FF00FF] to-[#FF1493] text-white px-3 py-1 rounded  cursor-pointer hover:scale-105 text-sm"
-                      >
-                        View
+                    <Link to={`/dashboard/add-event/event-details/${event?._id}`}>
+                      <button className="flex rounded-lg items-center gap-2 px-4 py-1 bg-linear-to-r from-pink-500 to-pink-800 hover:from-pink-600 hover:to-pink-900 transition duration-300 transform hover:scale-105">
+                        👁️ View
                       </button>
+
+
                     </Link>
                     <button className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm">
                       Edit
