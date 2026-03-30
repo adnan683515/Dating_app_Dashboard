@@ -18,7 +18,7 @@ interface Event {
   lat: number;
   long: number;
   addRess?: string;
-//   lineupMember: number;
+  //   lineupMember: number;
 }
 
 interface EventsMeta {
@@ -34,13 +34,7 @@ interface EventsData {
 }
 
 // API fetch function
-const fetchEvents = async (params: {
-  page?: number;
-  limit?: number;
-  status?: string;
-  tags?: string;
-  filter?: string;
-}): Promise<EventsData> => {
+const fetchEvents = async (params: { page?: number; limit?: number; status?: string; tags?: string; filter?: string; }): Promise<EventsData> => {
   // Remove undefined keys
   const cleanedParams = Object.fromEntries(
     Object.entries(params).filter(([_, v]) => v !== undefined && v !== null && v !== '')
@@ -70,7 +64,7 @@ export const useEvents = (params: {
 
 
 // get event status count
-export const eventStatusCount = async ()=>{
+export const eventStatusCount = async () => {
 
   const data = await sequreApi.get('/event/admin-events-status-count')
 

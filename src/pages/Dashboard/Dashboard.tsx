@@ -1,4 +1,5 @@
 import { CircleCheck, Clock, Facebook, Menu, TrendingUp, Users } from "lucide-react";
+import EventsMap from "./EventsMap";
 // import AuthHook from "../../Hooks/AuthHook";
 
 
@@ -167,48 +168,7 @@ export default function Dashboard() {
         <div className="flex gap-y-4 sm:gap-y-2 flex-col lg:flex-row gap-x-6 ">
 
 
-          <div className="bg-white/2 lg:w-2/3 p-6 backdrop-blur-xl rounded-2xl border border-white/5 shadow-2xl overflow-hidden">
-
-
-
-            <div className="flex flex-col">
-              {listing?.map((item, key) => (
-                <div
-                  key={key}
-                  className="flex gap-x-3 px-4 py-2 transition-all duration-300 hover:bg-white/5 group border-b border-white/10 last:border-0"
-                >
-
-                  <div className="relative shrink-0 mt-3">
-                    <div className="bg-[#1F3A5F] h-2.5 w-2.5 rounded-full shadow-[0_0_10px_rgba(14,165,233,0.5)] group-hover:scale-125 transition-transform" />
-
-                    <div className="absolute top-6 left-1/2 -translate-x-1/2 w-px h-full bg-white/5 group-last:hidden" />
-                  </div>
-
-                  <div className="space-y-1 flex-1">
-                    <h1 className="text-[20px] font-semibold   tracking-wider  text-white  ">
-                      {item?.title}
-                    </h1>
-
-                    <h2 className="text-[#CBD5E1] text-[14px]">
-                      {item?.subtitle}
-                    </h2>
-
-                    <div className="flex gap-x-2 items-center pt-1">
-                      <div className="text-[#CBD5E1]">
-                        {item?.icon}
-                      </div>
-                      <span className="text-[12px] font-semibold   text-[#CBD5E1]">
-                        {item?.time}
-                      </span>
-                    </div>
-                  </div>
-
-
-                </div>
-              ))}
-            </div>
-          </div>
-
+          <EventsMap></EventsMap>
 
 
           <div className="lg:w-1/3 flex flex-col gap-y-6">
@@ -252,11 +212,16 @@ export default function Dashboard() {
 
           </div>
 
+          
 
         </div>
 
 
       </div>
+
+
+
+
 
 
 

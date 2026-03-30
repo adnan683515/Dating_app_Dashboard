@@ -25,6 +25,24 @@ const getCategories = async (page: number, limit: number, search?: string, isDel
 
 
 
+// update category
+const updateCategory = async (id: string, name: string, isDelete: boolean) => {
+  try {
+    const res = await sequreApi.patch(`/cetegory/update-cetegory/${id}`, {
+      name,
+      isDelete,
+    });
+
+    console.log("Success:", res.data);
+    return res.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.error("Error:", error.response?.data || error.message);
+    throw error; 
+  }
+};
+
+
 
 export default function Verification() {
   const [page, setPage] = useState(1);
@@ -35,20 +53,34 @@ export default function Verification() {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const [previous, setPrevious] = useState("");
+  const [deleteStore, setDeleteStore] = useState<boolean>()
+  const [id, setId] = useState<string>("")
 
 
-  const handleUndo = () => {
-    setValue(previous);
-  };
 
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading , refetch } = useQuery({
     queryKey: ["categories", page, search, isDelete, limit],
     queryFn: () => getCategories(page, limit, search, isDelete),
   });
 
   const categories = data?.data?.data;
   const meta = data?.data?.meta;
+
+  const handleSave = async () => {
+    try {
+      console.log("id",id)
+      const ans = await updateCategory(id, previous, deleteStore as boolean);
+      console.log(ans);
+    } catch (err) {
+      console.log(err);
+    }finally{
+      refetch()
+      setOpen(false)
+    }
+  };
+
+
 
   return (
     <div className="p-6 space-y-4">
@@ -153,17 +185,22 @@ export default function Verification() {
                         : "bg-green-500/20 text-green-400 border border-green-500/30"
                         }`}
                     >
-                      {cat.isDelete ? "Deleted" : "Active"}
+                      {cat.isDelete ? "Inactive" : "Active"}
                     </span>
                   </td>
 
                   {/* Action */}
                   <td className="p-3 flex justify-center">
-                    <button   onClick={() => setOpen(true)} className="px-3 py-1 rounded-lg 
+                    <button onClick={() => {
+                      setOpen(true)
+                      setPrevious(cat?.name)
+                      setId(cat?._id)
+                      setDeleteStore(cat?.isDelete)
+                    }} className="px-3 py-1 rounded-lg 
             bg-linear-to-r from-pink-500 to-pink-700 
                 text-white flex gap-x-2  justify-end hover:scale-105 transition">
 
-                  <Pencil size={18} />
+                      <Pencil size={18} />
                       Edit
                     </button>
                   </td>
@@ -247,18 +284,20 @@ export default function Verification() {
               ✕
             </button>
 
-            {/* Title */}
+
             <h2 className="text-lg font-semibold mb-4">
               Add Category
             </h2>
 
-            {/* Input */}
+
             <input
               type="text"
               placeholder="Enter category name..."
-              value={value}
+
+              defaultValue={previous}
               onChange={(e) => {
                 setPrevious(value);
+
                 setValue(e.target.value);
               }}
               className="w-full px-4 py-2 rounded-lg 
@@ -268,32 +307,41 @@ export default function Verification() {
             />
 
             {/* Undo */}
-            <button
-              onClick={handleUndo}
-              className="mt-2 text-xs text-pink-400 hover:underline"
+            <div
+              onClick={() => setDeleteStore(!deleteStore)}
+              className={`w-12 mt-4 h-6 flex items-center rounded-full p-1 cursor-pointer transition-all duration-300 ${deleteStore ? "bg-linear-to-r from-red-500 to-pink-700" : "bg-green-500"
+                }`}
             >
-              Undo
-            </button>
+              <div
+                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-all duration-300 ${deleteStore ? "translate-x-6" : "translate-x-0"
+                  }`}
+              />
+            </div>
+
+            {/* Label */}
+            <span className="text-sm font-medium">
+
+            </span>
 
             {/* Actions */}
             <div className="flex justify-end gap-2 mt-6">
               <button
-                onClick={() => setOpen(false)}
+                onClick={() => setDeleteStore(true)}
                 className="px-4 py-2 rounded-lg 
-                  bg-white/10 border border-white/20 
-                  hover:bg-white/20 transition"
+      bg-white/10 border border-white/20 
+      hover:bg-white/20 transition"
               >
                 Cancel
               </button>
 
               <button
                 onClick={() => {
-                  console.log("Saved:", value);
-                  setOpen(false);
+                  handleSave();
                 }}
                 className="px-4 py-2 rounded-lg 
-                  bg-linear-to-r from-pink-500 to-pink-700 
-                  hover:scale-105 transition"
+      bg-linear-to-r from-pink-500 to-pink-700 
+      text-white
+      hover:scale-105 transition"
               >
                 Save
               </button>

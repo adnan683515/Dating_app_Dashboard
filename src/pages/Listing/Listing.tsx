@@ -66,7 +66,7 @@ export default function EventPage() {
   if (error) return <div>Error loading events</div>;
 
   return (
-    <div className="p-6 bg-black min-h-screen text-white">
+    <div className=" bg-black min-h-screen text-white">
 
 
 
@@ -86,23 +86,33 @@ export default function EventPage() {
       </div>
 
 
+      <div className="flex sm:flex-row flex-col items-center justify-between mt-6 gap-4">
 
-      <div className="flex justify-between items-center mt-6">
-        <h1 className="text-2xl font-bold">All Events</h1>
+        {/* Left Section */}
+        <div className="flex flex-col gap-3 w-full max-w-xl">
+          <h1 className="text-2xl font-bold">All Events</h1>
 
+          <input
+            type="text"
+            placeholder="Search by name..."
+            className="w-full bg-[#0B1120] border border-[#C7B268]/40 rounded-xl py-3 px-4 text-white placeholder:text-pink-300/60 focus:outline-none focus:ring-2 focus:ring-pink-500/40 focus:border-pink-400 transition-all"
+          />
+        </div>
+
+        {/* Right Button */}
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl     bg-linear-to-r from-[#C7B268] to-[#776a39] text-white font-semibold hover:opacity-90"
+          className="flex items-center gap-2 px-5 py-3 h-10
+    rounded-xl bg-linear-to-r from-[#C7B268] to-[#776a39] 
+    text-white font-semibold hover:opacity-90 whitespace-nowrap"
         >
           <Plus size={18} />
           Add Event
         </button>
+
       </div>
 
-      {/* overflow-x-auto mt-6 rounded-xl 
-  bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl */}
-
-      <div className="p-4">
+      <div className="">
         <div className="overflow-x-auto mt-6 rounded-xl 
   bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl">
           <table className="min-w-full rounded-xl divide-y divide-gray-200">

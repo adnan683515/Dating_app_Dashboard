@@ -146,14 +146,14 @@ const UserManagement: React.FC = () => {
                   <Loader />
                 </div>
               </td>
-            </tr> : UserData?.data?.map((user : UserType) => (
+            </tr> : UserData?.data?.map((user: UserType) => (
               <tr
                 key={user._id}
                 className="border-b border-white/10 hover:bg-pink-500/5 transition"
               >
                 {/* 👤 User Info */}
                 <td className="px-4 py-3 flex items-center gap-3">
-                              <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
+                  <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
                   <img
                     src={
                       user.image ||
@@ -165,16 +165,16 @@ const UserManagement: React.FC = () => {
                   <span className="font-medium">{user.displayName}</span>
                 </td>
 
-                {/* 📍 Location */}
+                {/* Location */}
                 <td className="px-4 py-3 text-slate-300">
                   {user.userLocation ? user?.userLocation : "Not update"}
                 </td>
-                {/* 📍 Location */}
+                {/* Location */}
                 <td className="px-4 py-3 text-slate-300">
                   {user.email}
                 </td>
 
-                {/* 🎯 Availability */}
+                {/* Availability */}
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-2 text-xs">
                     {user.availableForDate && (
@@ -195,7 +195,7 @@ const UserManagement: React.FC = () => {
                   </div>
                 </td>
 
-                {/* 🟢 Status */}
+                {/* Status */}
                 <td className="px-4 py-3">
                   <span
 
@@ -213,22 +213,41 @@ const UserManagement: React.FC = () => {
                 </td>
 
                 {/* Toggle Action */}
-                <td className="px-4 flex items-center gap-x-5 py-2 text-end justify-end">
-                  <button onClick={() => {
-                    setOpen(true)
-                    setSelectedUser(user)
-                  }} className="flex rounded-lg items-center gap-2 px-4 py-1 bg-linear-to-r from-pink-500 to-pink-800 hover:from-pink-600 hover:to-pink-900 transition duration-300 transform hover:scale-105">
+                <td className="px-4 flex items-center gap-x-5 py-2 justify-end">
+
+                  <button
+                    onClick={() => {
+                      setOpen(true);
+                      setSelectedUser(user);
+                    }}
+                    className="flex items-center justify-center gap-2 
+    h-8 min-w-27.5
+    rounded-lg 
+    bg-linear-to-r from-pink-500 to-pink-800 
+    hover:from-pink-600 hover:to-pink-900 
+    transition duration-300 transform hover:scale-105"
+                  >
                     👁️ View
                   </button>
+
                   <button
-                    onClick={() => userUPdate(user?._id, user?.status === "ACTIVE" ? "INACTIVE" : "ACTIVE")}
-                    className={`px-4 cursor-pointer py-2 rounded-xl text-xs font-semibold transition-all ${user.status === "ACTIVE"
-                      ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
-                      : "bg-green-500/20 text-green-400 hover:bg-green-500/30"
+                    onClick={() =>
+                      userUPdate(
+                        user?._id,
+                        user?.status === "ACTIVE" ? "INACTIVE" : "ACTIVE"
+                      )
+                    }
+                    className={`flex items-center justify-center
+    h-8 min-w-27.5
+    rounded-lg text-xs font-semibold transition-all
+    ${user.status === "ACTIVE"
+                        ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                        : "bg-green-500/20 text-green-400 hover:bg-green-500/30"
                       }`}
                   >
                     {user.status === "ACTIVE" ? "Deactivate" : "Activate"}
                   </button>
+
                 </td>
               </tr>
             ))}

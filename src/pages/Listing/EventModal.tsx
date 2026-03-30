@@ -82,7 +82,7 @@ export default function AddEventModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-50">
-      <div className="relative w-full max-w-3xl bg-black rounded-xl p-5 border border-[#C7B268]/30 shadow-lg">
+      <div className="relative w-[95%] sm:w-full max-w-3xl bg-black rounded-xl p-5 border border-[#C7B268]/30 shadow-lg">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-white p-1 rounded-full hover:bg-gray-800"
