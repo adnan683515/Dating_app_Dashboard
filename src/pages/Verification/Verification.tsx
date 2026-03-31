@@ -1,65 +1,57 @@
+
+
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, Pencil } from "lucide-react";
 import { useState } from "react";
 import sequreApi from "../../axios/axiosSequre";
 import Loader from "../Loader/Loader";
 
-// API function
+// ================= API =================
+
 const getCategories = async (page: number, limit: number, search?: string, isDelete?: string) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: Record<string, any> = {
-    limit: limit || 10,
-    page: page || 1,
+    limit,
+    page,
   };
-  if (isDelete) {
-    params.isDelete = isDelete == "true" ? true : false;
-  }
 
-  if (search) {
-    params.searchTerm = search
-  }
+  if (isDelete) params.isDelete = isDelete === "true";
+  if (search) params.searchTerm = search;
 
-  const res = await sequreApi.get('/cetegory/cetegories', { params });
+  const res = await sequreApi.get("/cetegory/cetegories", { params });
   return res?.data;
 };
 
-
-
-// update category
 const updateCategory = async (id: string, name: string, isDelete: boolean) => {
-  try {
-    const res = await sequreApi.patch(`/cetegory/update-cetegory/${id}`, {
-      name,
-      isDelete,
-    });
-
-    console.log("Success:", res.data);
-    return res.data;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.error("Error:", error.response?.data || error.message);
-    throw error; 
-  }
+  const res = await sequreApi.patch(`/cetegory/update-cetegory/${id}`, {
+    name,
+    isDelete,
+  });
+  return res.data;
 };
 
+const createCategory = async (name: string) => {
+  const res = await sequreApi.post(`/cetegory/create-cetegory`, { name });
+  return res.data;
+};
 
+// ================= COMPONENT =================
 
 export default function Verification() {
+
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [isDelete, setIsDelete] = useState<string>("");
   const [limit, setLimit] = useState(30);
 
+  // modal state (cleaned)
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
-  const [previous, setPrevious] = useState("");
-  const [deleteStore, setDeleteStore] = useState<boolean>()
-  const [id, setId] = useState<string>("")
+  const [deleteStore, setDeleteStore] = useState<boolean>(false);
+  const [id, setId] = useState<string>("");
+  const [isAddMode, setIsAddMode] = useState(true);
 
-
-
-
-  const { data, isLoading , refetch } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["categories", page, search, isDelete, limit],
     queryFn: () => getCategories(page, limit, search, isDelete),
   });
@@ -67,20 +59,40 @@ export default function Verification() {
   const categories = data?.data?.data;
   const meta = data?.data?.meta;
 
+  // ================= HANDLERS =================
+
+  const openAddModal = () => {
+    setOpen(true);
+    setValue("");
+    setDeleteStore(false);
+    setId("");
+    setIsAddMode(true);
+  };
+
+  const openEditModal = (cat: { _id: string, name: string, isDelete: boolean }) => {
+    setOpen(true);
+    setValue(cat.name);
+    setDeleteStore(cat.isDelete);
+    setId(cat._id);
+    setIsAddMode(false);
+  };
+
   const handleSave = async () => {
     try {
-      console.log("id",id)
-      const ans = await updateCategory(id, previous, deleteStore as boolean);
-      console.log(ans);
+      if (isAddMode) {
+        await createCategory(value);
+      } else {
+        await updateCategory(id, value, deleteStore);
+      }
     } catch (err) {
       console.log(err);
-    }finally{
-      refetch()
-      setOpen(false)
+    } finally {
+      refetch();
+      setOpen(false);
     }
   };
 
-
+  // ================= UI =================
 
   return (
     <div className="p-6 space-y-4">
@@ -91,9 +103,10 @@ export default function Verification() {
           Category List
         </h1>
 
-        <button className="px-5 py-2 rounded-lg text-white font-medium 
-    bg-linear-to-r from-[#C7B268] to-[#776a39]
-    shadow-lg hover:scale-105 transition">
+        <button onClick={openAddModal}
+          className="px-5 py-2 rounded-lg text-white font-medium 
+          bg-linear-to-r from-[#C7B268] to-[#776a39]
+          shadow-lg hover:scale-105 transition">
           + Add Category
         </button>
       </div>
@@ -104,9 +117,9 @@ export default function Verification() {
           type="text"
           placeholder="🔍 Search category..."
           className="w-full px-4 py-2 rounded-lg 
-      bg-white/10 backdrop-blur-md 
-      text-white placeholder-gray-400 
-      border border-white/10 focus:outline-none focus:ring-2 focus:ring-pink-500"
+          bg-white/10 backdrop-blur-md 
+          text-white placeholder-gray-400 
+          border border-white/10 focus:outline-none focus:ring-2 focus:ring-pink-500"
           value={search}
           onChange={(e) => {
             setPage(1);
@@ -116,9 +129,9 @@ export default function Verification() {
 
         <select
           className="px-4 py-2 rounded-lg 
-    bg-white/10 backdrop-blur-md 
-    text-white border border-white/10 
-    focus:outline-none focus:ring-2 focus:ring-pink-500"
+          bg-white/10 backdrop-blur-md 
+          text-white border border-white/10 
+          focus:outline-none focus:ring-2 focus:ring-pink-500"
           value={isDelete}
           onChange={(e) => {
             setPage(1);
@@ -133,7 +146,7 @@ export default function Verification() {
 
       {/* Table */}
       <div className="overflow-x-auto mt-6 rounded-xl 
-  bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl">
+        bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl">
 
         <table className="w-full text-sm text-white">
           <thead className="bg-white/10 text-gray-300">
@@ -147,38 +160,29 @@ export default function Verification() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={8} className="text-center p-6 text-gray-400">
-                  <Loader></Loader>
+                <td colSpan={8} className="text-center p-6">
+                  <Loader />
                 </td>
               </tr>
-            ) : !categories?.length ? <tr>
-              <td colSpan={8} className="text-center  text-white py-5">
-                <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <h1 className="text-2xl font-semibold text-pink-400 mb-2">
-                    No Categories Found
-                  </h1>
-                  <p className="text-sm text-pink-300/70">
-                    There are no categories available right now.
-                  </p>
-                </div>
-              </td>
-            </tr> : (
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              categories?.map((cat: any) => (
-                <tr
-                  key={cat._id}
-                  className="border-t border-white/10 hover:bg-white/10 transition"
-                >
-                  {/* Name */}
+            ) : !categories?.length ? (
+              <tr>
+                <td colSpan={8} className="text-center text-white py-5">
+                  No Categories Found
+                </td>
+              </tr>
+            ) : (
+              categories.map((cat: { _id: string, name: string, isDelete: boolean }) => (
+                <tr key={cat._id} className="border-t border-white/10 hover:bg-white/10 transition">
                   <td className="p-3">
+
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
                       {cat.name}
                     </div>
                   </td>
 
-                  {/* Status */}
                   <td className="p-3 text-center">
+
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium ${cat.isDelete
                         ? "bg-red-500/20 text-red-400 border border-red-500/30"
@@ -189,17 +193,11 @@ export default function Verification() {
                     </span>
                   </td>
 
-                  {/* Action */}
                   <td className="p-3 flex justify-center">
-                    <button onClick={() => {
-                      setOpen(true)
-                      setPrevious(cat?.name)
-                      setId(cat?._id)
-                      setDeleteStore(cat?.isDelete)
-                    }} className="px-3 py-1 rounded-lg 
-            bg-linear-to-r from-pink-500 to-pink-700 
-                text-white flex gap-x-2  justify-end hover:scale-105 transition">
-
+                    <button onClick={() => openEditModal(cat)}
+                      className="px-3 py-1 rounded-lg 
+                      bg-linear-to-r from-pink-500 to-pink-700 
+                      text-white flex gap-x-2 hover:scale-105 transition">
                       <Pencil size={18} />
                       Edit
                     </button>
@@ -211,9 +209,8 @@ export default function Verification() {
         </table>
       </div>
 
-      {/* Pagination */}
+      {/* Pagination (unchanged UI) */}
       <div className="flex justify-end items-center gap-3 mt-6 text-white">
-
 
         <div className="relative">
           <select
@@ -223,52 +220,37 @@ export default function Verification() {
               setLimit(Number(e.target.value));
             }}
             className="appearance-none px-4 py-2 pr-10 rounded-lg 
-      bg-white/10 backdrop-blur-md 
-      text-white border border-white/10 
-      focus:outline-none focus:ring-2 focus:ring-pink-500 
-      cursor-pointer"
+            bg-white/10 backdrop-blur-md 
+            text-white border border-white/10 
+            focus:outline-none focus:ring-2 focus:ring-pink-500 
+            cursor-pointer"
           >
             <option value={10} className="bg-black text-white">10</option>
             <option value={20} className="bg-black text-white">20</option>
             <option value={30} className="bg-black text-white">30</option>
           </select>
 
-          {/* Custom Arrow */}
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none">
             <ChevronDown />
           </span>
         </div>
 
-        <button
-          disabled={page === 1}
-          onClick={() => setPage((prev) => prev - 1)}
-          className="px-4 py-1 rounded-lg border border-white/20 
-      bg-white/5 cursor-pointer  hover:bg-white/10 
-      disabled:opacity-40 transition"
-        >
+        <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
+          className="px-4 py-1 rounded-lg border border-white/20 bg-white/5 hover:bg-white/10 disabled:opacity-40">
           Prev
         </button>
 
-        <span className="text-gray-300">
-          Page <span className="text-pink-400">{meta?.page}</span> /{" "}
-          {meta?.totalpage}
+        <span>
+          Page <span className="text-pink-400">{meta?.page}</span> / {meta?.totalpage}
         </span>
 
-        <button
-          disabled={page === meta?.totalpage}
-          onClick={() => setPage((prev) => prev + 1)}
-          className="px-4 py-1 rounded-lg border border-white/20 
-      bg-white/5 cursor-pointer hover:bg-white/10 
-      disabled:opacity-40 transition"
-        >
+        <button disabled={page === meta?.totalpage} onClick={() => setPage(p => p + 1)}
+          className="px-4 py-1 rounded-lg border border-white/20 bg-white/5 hover:bg-white/10 disabled:opacity-40">
           Next
         </button>
       </div>
 
-
-
-
-
+      {/* Modal */}
       {open && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
 
@@ -276,73 +258,36 @@ export default function Verification() {
             bg-white/10 backdrop-blur-xl 
             border border-white/20 shadow-2xl text-white relative">
 
-            {/* Close (X) */}
-            <button
-              onClick={() => setOpen(false)}
-              className="absolute top-3 right-3 text-gray-300 hover:text-pink-400 text-lg"
-            >
-              ✕
-            </button>
-
+            <button onClick={() => setOpen(false)} className="absolute top-3 right-3">✕</button>
 
             <h2 className="text-lg font-semibold mb-4">
-              Add Category
+              {isAddMode ? "Add Category" : "Update Category"}
             </h2>
 
-
             <input
-              type="text"
-              placeholder="Enter category name..."
-
-              defaultValue={previous}
-              onChange={(e) => {
-                setPrevious(value);
-
-                setValue(e.target.value);
-              }}
-              className="w-full px-4 py-2 rounded-lg 
-                bg-white/10 border border-white/10 
-                text-white placeholder-gray-400 
-                focus:outline-none focus:ring-2 focus:ring-pink-500"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              className="w-full px-4 py-2 rounded-lg bg-white/10"
             />
 
-            {/* Undo */}
-            <div
-              onClick={() => setDeleteStore(!deleteStore)}
-              className={`w-12 mt-4 h-6 flex items-center rounded-full p-1 cursor-pointer transition-all duration-300 ${deleteStore ? "bg-linear-to-r from-red-500 to-pink-700" : "bg-green-500"
-                }`}
-            >
+            {!isAddMode && (
               <div
-                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-all duration-300 ${deleteStore ? "translate-x-6" : "translate-x-0"
-                  }`}
-              />
-            </div>
+                onClick={() => setDeleteStore(!deleteStore)}
+                className={`w-12 mt-4 h-6 flex items-center rounded-full p-1 cursor-pointer transition 
+                ${deleteStore ? "bg-linear-to-r from-red-500 to-pink-700" : "bg-green-500"}`}
+              >
+                <div className={`bg-white w-4 h-4 rounded-full transform transition 
+                  ${deleteStore ? "translate-x-6" : ""}`} />
+              </div>
+            )}
 
-            {/* Label */}
-            <span className="text-sm font-medium">
-
-            </span>
-
-            {/* Actions */}
             <div className="flex justify-end gap-2 mt-6">
-              <button
-                onClick={() => setDeleteStore(true)}
-                className="px-4 py-2 rounded-lg 
-      bg-white/10 border border-white/20 
-      hover:bg-white/20 transition"
-              >
-                Cancel
-              </button>
+              <button onClick={() => setOpen(false)}>Cancel</button>
 
-              <button
-                onClick={() => {
-                  handleSave();
-                }}
+              <button onClick={handleSave}
                 className="px-4 py-2 rounded-lg 
-      bg-linear-to-r from-pink-500 to-pink-700 
-      text-white
-      hover:scale-105 transition"
-              >
+                bg-linear-to-r from-pink-500 to-pink-700 
+                text-white hover:scale-105 transition">
                 Save
               </button>
             </div>
@@ -350,6 +295,7 @@ export default function Verification() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

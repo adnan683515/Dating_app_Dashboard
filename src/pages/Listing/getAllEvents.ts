@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useQuery } from '@tanstack/react-query';
 import sequreApi from '../../axios/axiosSequre';
 
@@ -34,7 +35,7 @@ interface EventsData {
 }
 
 // API fetch function
-const fetchEvents = async (params: { page?: number; limit?: number; status?: string; tags?: string; filter?: string; }): Promise<EventsData> => {
+const fetchEvents = async (params: { page?: number; limit?: number; status?: string; tags?: string; filter?: string; searchTerm?: string }): Promise<EventsData> => {
   // Remove undefined keys
   const cleanedParams = Object.fromEntries(
     Object.entries(params).filter(([_, v]) => v !== undefined && v !== null && v !== '')
@@ -52,9 +53,10 @@ export const useEvents = (params: {
   status?: string;
   tags?: string;
   filter?: string;
+  searchTerm?: string;
 }) => {
   return useQuery<EventsData>({
-    queryKey: ['events', params],
+    queryKey: ['events', params ],
     queryFn: () => fetchEvents(params),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

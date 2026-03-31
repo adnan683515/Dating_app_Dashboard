@@ -101,25 +101,27 @@ export default function EventDetails() {
 
   // add lineup
   const handleSave = async () => {
+    if (!id) {
+      toast.error("Event ID is missing");
+      return;
+    }
+
     const payload = {
       eventId: id,
       lineups: inputs
         .filter(name => name.trim() !== "")
-        .map(name => ({ name }))
+        .map(name => ({ name })),
     };
 
+    const postResult = await addLineUpofEvent(payload);
 
-
-    const postResult = await addLineUpofEvent(payload)
     if (postResult?.success) {
-      toast.success(postResult?.message)
-      setIsOpen(false)
-      refetch()
-
-    }
-    else {
-      toast.error(postResult?.message)
-      setIsOpen(false)
+      toast.success(postResult?.message);
+      setIsOpen(false);
+      refetch();
+    } else {
+      toast.error(postResult?.message);
+      setIsOpen(false);
     }
   };
 
@@ -483,7 +485,7 @@ export default function EventDetails() {
                           className="block cursor-pointer text-sm w-full text-left px-4 py-2 hover:bg-red-600 rounded-b-lg"
                           onClick={() => {
                             deleteLineupFn(item?._id)
-                    
+
                           }}
                         >
                           Delete

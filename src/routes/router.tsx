@@ -7,11 +7,11 @@ import BoostedListing from "../pages/Boosted/BoostedListing";
 import ContentMod from "../pages/Content/ContentMod";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import EventDetails from "../pages/Listing/EventDetails";
-import EventPage from "../pages/Listing/Listing";
 import Notification from "../pages/Notification/Notification";
 import SettginsPage from "../pages/SettingsPage/SettginsPage";
 import UserManagement from "../pages/UserManagement/UserManagement";
 import Verification from "../pages/Verification/Verification";
+import EventPage from "../pages/Listing/EventPage";
 
 
 

@@ -1,7 +1,7 @@
 
 
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import { useState, type JSX } from "react";
+import { ChevronLeft, ChevronRight, Plus, Star } from "lucide-react";
+import { useEffect, useState, type JSX } from "react";
 import { Link } from "react-router";
 import AddEventModal from "./EventModal";
 import { eventStatusCount, useEvents } from "./getAllEvents";
@@ -9,6 +9,8 @@ import Loader from "../Loader/Loader";
 
 import { FaClock, FaDoorOpen, FaPlay, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { useQuery } from "@tanstack/react-query";
+import { EventTags } from "../../config/type";
+import { STATUS_CONFIG } from "./listing";
 
 
 
@@ -30,12 +32,38 @@ const statusIcons: Record<string, JSX.Element> = {
   CANCELLED: <FaTimesCircle size={24} />,
 };
 
+
+
+
+const tagStyles: Record<EventTags, string> = {
+  VIP: "bg-gradient-to-r from-yellow-400 to-yellow-600 text-black",
+  NEARBY: "bg-gradient-to-r from-green-400 to-green-600 text-white",
+  ROOFTOP: "bg-gradient-to-r from-purple-500 to-indigo-600 text-white",
+  OUTDOOR: "bg-gradient-to-r from-pink-500 to-rose-600 text-white",
+};
+
+
 export default function EventPage() {
   const [open, setOpen] = useState(false);
-
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const tags = Object.values(EventTags);
+  const [selectTag, setSeletectTag] = useState<string>("")
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [currentPage, setCurrentpage] = useState<number>(1)
+  const { data, isLoading, error } = useEvents({ page: currentPage, limit: 15, status: '', tags: selectTag, searchTerm: debouncedSearch });
 
-  const { data, isLoading, error } = useEvents({ page: currentPage, limit: 15, status: '', tags: 'VIP' });
+
+
+  // Debounce logic (2 sec)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 1000); // 2 seconds
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
 
 
 
@@ -57,19 +85,18 @@ export default function EventPage() {
     CANCELLED: statusCount?.CANCELLED,
   };
 
-  console.log(statusCount)
 
-  if (isLoading) return <div className="flex justify-center items-center  min-h-screen">
 
-    <Loader></Loader>
-  </div>;
+
+  console.log(selectTag)
+
+
+
+
   if (error) return <div>Error loading events</div>;
 
   return (
     <div className=" bg-black min-h-screen text-white">
-
-
-
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
         {Object.entries(statusData).map(([status, count]) => (
@@ -92,12 +119,73 @@ export default function EventPage() {
         <div className="flex flex-col gap-3 w-full max-w-xl">
           <h1 className="text-2xl font-bold">All Events</h1>
 
+
           <input
             type="text"
-            placeholder="Search by name..."
+            placeholder="Search by name or location ..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-[#0B1120] border border-[#C7B268]/40 rounded-xl py-3 px-4 text-white placeholder:text-pink-300/60 focus:outline-none focus:ring-2 focus:ring-pink-500/40 focus:border-pink-400 transition-all"
           />
+
+
+          <div className="flex gap-2 flex-wrap">
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                onClick={() => setSeletectTag(tag)}
+                className={`
+      relative px-4 py-1.5 
+      text-sm font-medium 
+      rounded-full 
+      shadow-md 
+      cursor-pointer 
+      transition-all duration-300 hover:scale-105
+
+      ${tagStyles[tag as EventTags]}
+
+      ${tag === selectTag ? "text-white" : ""}
+    `}
+              >
+                {/* Border Layer */}
+                {tag === selectTag && (
+                  <span className="absolute inset-0 rounded-full p-0.5 bg-linear-to-r from-amber-400 to-pink-500">
+                    <span className="block w-full h-full rounded-full bg-black/80" />
+                  </span>
+                )}
+
+                {/* Text */}
+                <span className="relative flex gap-x-1 items-center z-10">
+                  {tag == EventTags.VIP && <Star size={16}></Star>} {tag}
+                </span>
+              </span>
+            ))}
+          </div>
+
         </div>
+
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(STATUS_CONFIG).map(([key, value]) => (
+            <button
+              key={key}
+              onClick={() => setSelectedStatus(key)}
+              className={`
+        px-4 py-1.5 rounded-full text-sm font-medium 
+        border transition-all duration-300 cursor-pointer
+
+        ${selectedStatus === key
+                  ? `${value.color} scale-105 shadow-md`
+                  : "bg-white/10 text-gray-300 border-white/10 hover:bg-white/20"
+                }
+      `}
+            >
+              {value.label}
+            </button>
+          ))}
+        </div>
+
+
+
 
         {/* Right Button */}
         <button
@@ -128,7 +216,17 @@ export default function EventPage() {
               </tr>
             </thead>
             <tbody className="bg-black divide-y divide-gray-200">
-              {data?.data?.map((event) => (
+              {isLoading ? <tr>
+                <td colSpan={100} className="text-center py-6">
+                  <div className="flex justify-center items-center">
+                    <Loader />
+                  </div>
+                </td>
+              </tr> : !data?.data?.length ? <tr>
+                <td colSpan={8} className="text-center text-white py-5">
+                  No Events Found
+                </td>
+              </tr> : data?.data?.map((event) => (
                 <tr key={event._id} className="border-t border-white/10 hover:bg-white/10 transition">
                   <td className="px-4 py-2 flex items-center gap-3">
 
