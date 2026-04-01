@@ -19,10 +19,9 @@ interface Event {
   lat: number;
   long: number;
   addRess?: string;
-  //   lineupMember: number;
 }
 
-interface EventsMeta {
+export interface EventsMeta {
   page: number;
   limit: number;
   total: number;
@@ -42,19 +41,12 @@ const fetchEvents = async (params: { page?: number; limit?: number; status?: str
   );
 
   const res = await sequreApi.get('/event/getEventsForAdmin', { params: cleanedParams });
-  console.log(res?.data?.data, "res")
   return res?.data?.data; // or res.data.data depending on your API
 };
 
 
-export const useEvents = (params: {
-  page?: number;
-  limit?: number;
-  status?: string;
-  tags?: string;
-  filter?: string;
-  searchTerm?: string;
-}) => {
+export const useEvents = (params: {page?: number;limit?: number;status?: string;tags?: string;filter?: string;searchTerm?: string;}) => {
+
   return useQuery<EventsData>({
     queryKey: ['events', params ],
     queryFn: () => fetchEvents(params),

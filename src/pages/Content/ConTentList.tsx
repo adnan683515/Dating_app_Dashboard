@@ -1,254 +1,271 @@
-import {
-    ChevronLeft,
-    ChevronRight,
-    CircleCheck,
-    Eye,
-    OctagonAlert,
-    Trash2,
-
-    TriangleAlert
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useState } from 'react';
-import type { Listing } from '../../config/type';
-
-
-
-// --- Sample Data ---
-const MOCK_DATA: Listing[] = [
-    {
-        id: 1,
-        title: '2020 Mercedes-AMG C63S',
-        user: 'John Smith',
-        reason: 'Suspected fraudulent pricing',
-        serevity: 'HIGH',
-        status: 'Pending',
-        paymentStatus: 'Completed',
-        amount: '$49.99',
-        views: '1,247',
-        reasobBy: "Rimon islam"
-    },
-    {
-        id: 2,
-        title: 'Best turbo kit recommendations?',
-        user: 'AutoParts Pro',
-        reason: 'Spam content',
-        serevity: 'LOW',
-        status: 'Pending',
-        paymentStatus: 'Completed',
-        amount: '$89.99',
-        views: '856',
-        reasobBy: "Shakil Ahmed"
-    },
-    {
-        id: 3,
-        title: 'Conversation with seller',
-        user: 'Mike Johnson',
-        reason: 'Inappropriate language',
-        serevity: 'MEDIUM',
-        status: 'Reviewed',
-        paymentStatus: 'Pending',
-        amount: '$49.99',
-        views: '324',
-        reasobBy: "Kabir"
-    },
-    {
-        id: 4,
-        title: 'Performance Parts Bundle',
-        user: 'TuneWorks',
-        reason: 'Misleading description',
-        serevity: 'LOW',
-        status: 'Pending',
-        paymentStatus: 'Completed',
-        amount: '$149.99',
-        views: '2,103',
-        reasobBy: "Rokeya"
-    },
-    {
-        id: 5,
-        title: 'Check out my new build!',
-        user: 'Emily Brown',
-        reason: 'Spam/Self-promotion',
-        serevity: 'HIGH',
-        status: 'Removed',
-        paymentStatus: 'Completed',
-        amount: '$49.99',
-        views: '1,891',
-        reasobBy: "Nabila"
-    },
-];
+import { toast } from 'sonner';
+import Loader from '../Loader/Loader';
+import { upDateTicket, useBookings } from './content';
 
 
 
 
 const ConTentList: React.FC = () => {
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
-    const totalPages = Math.ceil(MOCK_DATA.length / itemsPerPage);
+    const [limit, setLimit] = useState(10);
+    const [countOfTicket, setCountOfTicket] = useState<number | null>(null)
+    const [updatedBookId, setUpdateBookId] = useState<string | null>(null)
+    const [status, setStatus] = useState<"PAID" | "FAILED" | "UNPAID">("PAID");
+    const { data: bookingList, isLoading, error, refetch } = useBookings({ page: 1, limit: limit, paymentStatus: status ? status : '' });
 
-    const paginatedData = MOCK_DATA.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
+
+
+    console.log(bookingList?.data)
+
+    const onChnageCountEvent = async (value: number, id: string) => {
+        setCountOfTicket(value)
+        setUpdateBookId(id)
+    }
+
+    const handleUpdate = async () => {
+        if (!updatedBookId || !countOfTicket) {
+            return { msg: "Must be add id and count" }
+        }
+
+        try {
+            const bd = { useCount: countOfTicket }
+            const res = await upDateTicket(bd, updatedBookId)
+            if (res?.success) {
+                toast.success('update successfully!')
+                refetch()
+            }
+
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        catch (err: any) {
+            console.log(err)
+        }
+        finally {
+            setCountOfTicket(null)
+            setUpdateBookId(null)
+        }
+
+
+    }
+
+
+
+
 
     return (
-        <div className="   text-slate-300">
-            <div className="">
-                <h2 className="mb-6 text-xl font-semibold text-white tracking-tight">
-                    Flagged Content
-                </h2>
-
-                <div className="overflow-hidden rounded-xl border border-slate-800 bg-[#0f172a]/50 shadow-2xl backdrop-blur-sm">
-
-                    <div className="hidden lg:block overflow-x-auto">
-                        <table className="w-full text-left text-sm">
-                            <thead className="border-b border-slate-800 bg-black text-[16px] text-white">
-                                <tr>
-                                    <th className="px-6 py-4 font-medium">Content</th>
-                                    <th className="px-6 py-4 font-medium">User Name</th>
-                                    <th className="px-6 py-4 font-medium">Reason</th>
-                                    <th className="px-6 py-4 font-medium">Severity</th>
-                                    <th className="px-6 py-4 font-medium">Status</th>
-                                    <th className="px-6 py-4 font-medium">Actions</th>
-
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-800/50">
-                                {paginatedData.map((item) => (
-                                    <tr key={item.id} className="transition-colors hover:bg-slate-800/40">
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center gap-3">
-
-                                                <span className="text-[16px] text-white whitespace-nowrap">{item.title}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">{item.user}</td>
-                                        <td className="px-6 py-5 flex flex-col gap-y-2">
-
-                                            <span className='text-[17px] '>{item.reason}</span>
-
-                                            <span className='font-light tracking-wider'>{item?.reasobBy}</span>
-                                        </td>
-                                        <td className="px-6 py-5 ">
+        <div className="  min-h-screen text-white my-4">
 
 
-                                            <span
-                                                className={`capitalize flex justify-center items-center gap-x-1 px-3 font-semibold py-1 rounded-full
-                                                         ${item?.serevity === 'HIGH'
-                                                        ? 'bg-[#FB2C3633] text-red-500'
-                                                        : item?.serevity === 'MEDIUM'
-                                                            ? 'bg-[#F0B10033] text-[#FDC700]'
-                                                            : item?.serevity === 'LOW'
-                                                                ? 'bg-[#2B7FFF33] text-[#51A2FF] '
-                                                                : ''
-                                                    }
-  `}
-                                            >
-                                                {item?.serevity == "HIGH"
-                                                    ? <OctagonAlert size={15} /> : item?.serevity == "MEDIUM" ? <TriangleAlert className='text-yellow-300' size={15} /> : ""}
-                                                {item.serevity.toLowerCase()}
-                                            </span>
+            <div className="flex gap-3">
 
-                                        </td>
-                                        <td className="px-6 py-5 text-slate-400">
-                                            <span className={` px-3 rounded-l-full rounded-r-full py-1 
-                                                ${item?.status == "Pending"
-                                                    ? 'bg-[#F0B10033] text-yellow-400' :
-                                                    item?.status == "Reviewed" ? 'bg-[#00C95033] text-green-400' : "bg-[#FB2C3633] text-red-400"} `}>{item.status}</span>
-                                        </td>
-                                        <td className="px-6 py-5 flex items-center flex-wrap gap-2">
+                {/* PAID */}
+                <button
+                    onClick={() => setStatus("PAID")}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-300
+    ${status === "PAID"
+                            ? "bg-green-500/20 text-green-400 border-green-400"
+                            : "bg-transparent text-gray-400 border-gray-600"
+                        }`}
+                >
+                    PAID
+                </button>
 
+                {/* FAILED */}
+                <button
+                    onClick={() => setStatus("FAILED")}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-300
+    ${status === "FAILED"
+                            ? "bg-red-500/20 text-red-400 border-red-400"
+                            : "bg-transparent text-gray-400 border-gray-600"
+                        }`}
+                >
+                    FAILED
+                </button>
 
-                                            <Eye size={17} />
+                {/* UNPAID */}
+                <button
+                    onClick={() => setStatus("UNPAID")}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-300
+    ${status === "UNPAID"
+                            ? "bg-pink-500/20 text-pink-400 border-pink-400"
+                            : "bg-transparent text-gray-400 border-gray-600"
+                        }`}
+                >
+                    UNPAID
+                </button>
 
-                                            {
-                                                item?.status == "Pending" && <div className='flex items-center gap-x-2'>
-                                                    <button className='bg-[#00C95033] text-[13px] flex items-center gap-x-1 px-2.5 py-2 rounded-md text-green-400'>  <CircleCheck size={15} /> Approve</button>
-                                                    <button className='bg-[#FB2C3633] text-[13px] flex items-center gap-x-1 px-2.5 py-2 rounded-md text-red-400'>  <Trash2 size={15} /> Removed</button>
-
-                                                </div>
-                                            }
-                                        </td>
-
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Mobile Card View: Visible only on small screens */}
-                    <div className="block lg:hidden divide-y divide-slate-800">
-                        {paginatedData.map((item) => (
-                            <div key={item.id} className="p-4 space-y-4">
-                                <div className="flex justify-between items-start">
-                                    <div className="flex gap-2">
-
-                                        <span className="font-bold text-white leading-tight">{item.title}</span>
-                                    </div>
-                                    <StatusBadge status={item.paymentStatus} />
-                                </div>
-                                <div className="grid grid-cols-2 gap-y-3 text-xs border-t border-slate-800/50 pt-3">
-                                    <div><p className="text-slate-500">User</p><p>{item.user}</p></div>
-                                    <div className="text-right"><p className="text-slate-500">Views</p><p className="font-mono">{item.views}</p></div>
-                                    <div><p className="text-slate-500">reason</p><p>{item.reason}</p></div>
-                                    <div className="text-right"><p className="text-slate-500">Amount</p><p className="text-white font-bold">{item.amount}</p></div>
-                                </div>
-                                <div className="px-6 w-full py-5 flex items-center flex-wrap gap-2">
-
-
-                                    <Eye size={17} />
-
-                                    {
-                                        item?.status == "Pending" && <div className='flex items-center gap-x-2'>
-                                            <button className='bg-[#00C95033] text-[13px] flex items-center gap-x-1 px-2.5 py-2 rounded-md text-green-400'>  <CircleCheck size={15} /> Approve</button>
-                                            <button className='bg-[#FB2C3633] text-[13px] flex items-center gap-x-1 px-2.5 py-2 rounded-md text-red-400'>  <Trash2 size={15} /> Removed</button>
-
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Smooth Pagination Footer */}
-                    <div className="flex items-center justify-between border-t border-slate-800 bg-slate-900/30 px-6 py-4">
-                        <span className="text-xs text-slate-500">
-                            Showing <span className="text-slate-300">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="text-slate-300">{Math.min(currentPage * itemsPerPage, MOCK_DATA.length)}</span> of <span className="text-slate-300">{MOCK_DATA.length}</span>
-                        </span>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                                className="flex items-center justify-center rounded-lg border border-slate-700 p-2 text-slate-400 transition hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
-                            >
-                                <ChevronLeft size={18} />
-                            </button>
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                disabled={currentPage === totalPages}
-                                className="flex items-center justify-center rounded-lg border border-slate-700 p-2 text-slate-400 transition hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
-                            >
-                                <ChevronRight size={18} />
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
+
+
+            <div className="overflow-x-auto mt-6 rounded-xl 
+  bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl">
+                <table className="min-w-full rounded-xl divide-y divide-gray-200">
+                    <thead className="bg-white/5   backdrop-blur-lg border border-white/10 shadow-xl ">
+                        <tr>
+                            <th className="p-3">Image</th>
+                            <th className="p-3">Event Title</th>
+                            <th className="p-3 hidden md:table-cell">User</th>
+                            <th className="p-3">Fee</th>
+                            <th className="p-3">Tickets</th>
+                            <th className="p-3">Booking Status</th>
+                            <th className="p-3">Ticket Use</th>
+                        </tr>
+                    </thead>
+
+                    <tbody className='bg-black divide-y divide-gray-200'>
+                        {isLoading ? <tr className='' >
+                            <td colSpan={100}>
+                                <Loader></Loader>
+                            </td>
+                        </tr> : bookingList?.data?.map((item, index) => (
+                            <tr
+                                key={item._id}
+                                className="border-b border-slate-700  transition-all duration-300"
+                                style={{
+                                    animation: `fadeIn 0.4s ease ${index * 0.05}s forwards`,
+                                    opacity: 0,
+                                }}
+                            >
+                                {/* Event Image */}
+                                <td className="p-3 flex gap-x-2 items-center justify-center">
+                                    <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
+                                    <img
+                                        src={item?.eventId?.image}
+                                        alt="event"
+                                        className="w-12  h-12 md:w-14 md:h-14 object-cover rounded-lg"
+                                    />
+
+                                </td>
+
+                                {/* Title */}
+                                <td className="p-3 font-semibold text-center text-sm md:text-base">
+                                    {item?.eventId?.title}
+                                </td>
+
+                                {/* User (hide on mobile) */}
+                                <td className="p-3 hidden text-center md:table-cell">
+                                    {item?.userId?.displayName}
+                                </td>
+
+                                {/* Fee */}
+                                <td className="p-3 text-center text-[#C7B268] font-semibold">
+                                    $ {item?.fee}
+                                </td>
+
+                                {/* Ticket Count */}
+                                <td className="p-3 text-center">{item?.ticketCount}</td>
+
+                                {/* Payment Status */}
+                                <td className="p-3 text-center">
+                                    <span
+                                        className={`px-2 py-1 rounded-full text-xs ${item?.paymentStatus === 'PAID'
+                                            ? "bg-green-500/20 text-green-400"
+                                            : item?.paymentStatus === "FAILED"
+                                                ? "bg-red-500/20 text-red-400"
+                                                : "bg-pink-500/20 text-pink-400"
+                                            }`}
+                                    >
+                                        {item?.paymentStatus}
+                                    </span>
+                                </td>
+
+
+
+                                <td className="p-3 text-center">
+                                    <div className="flex items-center justify-center gap-2">
+
+
+
+                                        <input
+                                            type="number"
+                                            defaultValue={item?.useCount}
+                                            min={0}
+                                            onChange={(e) => {
+                                                onChnageCountEvent(Number(e.target.value), item?._id)
+                                            }}
+                                            max={item?.ticketCount}
+                                            className="w-16 text-center bg-slate-800 border border-slate-600 rounded-lg py-1"
+                                        />
+
+
+
+                                        <button
+                                            disabled={
+                                                ['FAILED', 'UNPAID'].includes(item?.paymentStatus) ||
+                                                Number(item?.ticketCount) === Number(item?.useCount)
+                                            }
+                                            onClick={handleUpdate}
+                                            className={`relative px-2 py-1 rounded-lg font-semibold text-sm text-white 
+  shadow-lg transition-all duration-300
+  before:absolute before:inset-0 before:rounded-lg 
+  before:bg-white/10 before:opacity-0 hover:before:opacity-100
+
+  ${['FAILED', 'UNPAID'].includes(item?.paymentStatus) ||
+                                                    Number(item?.ticketCount) === Number(item?.useCount)
+                                                    ? "bg-gray-500 opacity-60 cursor-not-allowed"
+                                                    : "bg-linear-to-r from-[#FF1493] to-[#FF00FF] hover:scale-105 cursor-pointer"
+                                                }`}
+                                        >
+                                            ✨ Update
+                                        </button>
+
+                                    </div>
+                                </td>
+
+
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Pagination (ONLY 2 BUTTON) */}
+            <div className="flex justify-end mt-6 gap-4">
+
+
+                {/* 🔽 Limit Dropdown */}
+                <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-300">Show:</span>
+
+                    <select
+                        value={limit}
+                        onChange={(e) => setLimit(Number(e.target.value))}
+                        className="bg-slate-800 border border-slate-600 text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF1493]"
+                    >
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={30}>30</option>
+                        <option value={40}>40</option>
+                    </select>
+                </div>
+                <button className="px-4 py-2 rounded-lg font-semibold cursor-pointer bg-[#C7B268] text-black hover:opacity-80 transition">
+                    <ChevronLeft />
+                </button>
+
+                <button className="px-4 py-2 rounded-lg font-semibold bg-linear-to-r cursor-pointer from-[#FF1493] to-[#FF00FF] text-white hover:opacity-80 transition">
+                    <ChevronRight />
+                </button>
+            </div>
+
+            {/* Animation */}
+            <style>
+                {`
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    `}
+            </style>
         </div>
     );
 };
 
-// --- Reusable Badge Sub-component ---
-const StatusBadge = ({ status }: { status: string }) => {
-    const isCompleted = status === 'Completed';
-    return (
-        <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${isCompleted
-            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-            : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-            }`}>
-            <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${isCompleted ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-            {status}
-        </span>
-    );
-};
 
 export default ConTentList;

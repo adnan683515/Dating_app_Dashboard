@@ -105,14 +105,6 @@ export const attendanceEvent = async (page: number, eventId: string) => {
 }
 
 
-// {
-//   "eventId": "69b1f7f81f90b453e5bf14da",
-//   "lineups": [
-//     { "name": "DJ Snake" },
-//     { "name": "Alan Walker" },
-//     { "name": "Martin Garrix" }
-//   ]
-// }
 
 export const addLineUpofEvent = async (payload: {eventId: string; lineups: { name: string }[]}) => {
   try {

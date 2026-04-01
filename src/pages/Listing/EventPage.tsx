@@ -50,8 +50,9 @@ export default function EventPage() {
   const tags = Object.values(EventTags);
   const [selectTag, setSeletectTag] = useState<string>("")
   const [selectedStatus, setSelectedStatus] = useState<string>("");
+
   const [currentPage, setCurrentpage] = useState<number>(1)
-  const { data, isLoading, error } = useEvents({ page: currentPage, limit: 15, status: '', tags: selectTag, searchTerm: debouncedSearch });
+  const { data, isLoading, error } = useEvents({ page: currentPage, limit: 15, status: selectedStatus, tags: selectTag, searchTerm: debouncedSearch });
 
 
 
@@ -65,7 +66,7 @@ export default function EventPage() {
   }, [search]);
 
 
-
+  console.log(selectedStatus)
 
 
   const { data: statusCount } = useQuery({
@@ -85,10 +86,6 @@ export default function EventPage() {
     CANCELLED: statusCount?.CANCELLED,
   };
 
-
-
-
-  console.log(selectTag)
 
 
 
