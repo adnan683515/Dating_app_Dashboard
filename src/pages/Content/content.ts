@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useQuery } from "@tanstack/react-query";
 import sequreApi from "../../axios/axiosSequre";
-import type { PaymentStatus } from "../../config/type";
 import type { EventsMeta } from "../Listing/getAllEvents";
 
 
@@ -66,12 +65,9 @@ interface BookingInterface {
     useCount?: number
 }
 
-export const upDateTicket = async (
-    body: BookingInterface,
-    id: string
-) => {
+export const upDateTicket = async (body: BookingInterface, id: string) => {
     try {
-        const res = await sequreApi.patch(`/booking/update-book-useCount/${id}`,body);
+        const res = await sequreApi.patch(`/booking/update-book-useCount/${id}`, body);
 
         return res.data;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -84,3 +80,24 @@ export const upDateTicket = async (
         };
     }
 };
+
+
+
+
+export const countBookingDocuments = async () => {
+
+
+
+    try {
+
+        const res = await sequreApi.get('/booking/countBooking')
+        return res?.data?.data;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    catch (err: any) {
+        return {
+            success: false,
+            message: err?.response?.data?.message || "Something went wrong",
+        };
+    }
+}

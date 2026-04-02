@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import Loader from '../Loader/Loader';
@@ -8,12 +8,13 @@ import { upDateTicket, useBookings } from './content';
 
 
 const ConTentList: React.FC = () => {
-    const [limit, setLimit] = useState(10);
+    const [limit, setLimit] = useState(20);
     const [countOfTicket, setCountOfTicket] = useState<number | null>(null)
     const [updatedBookId, setUpdateBookId] = useState<string | null>(null)
     const [status, setStatus] = useState<"PAID" | "FAILED" | "UNPAID">("PAID");
-    const { data: bookingList, isLoading, error, refetch } = useBookings({ page: 1, limit: limit, paymentStatus: status ? status : '' });
-
+    const [page, setPage] = useState<number>(1)
+    const { data: bookingList, isLoading, error, refetch } = useBookings({ page: page, limit: limit, paymentStatus: status ? status : '' });
+    const [updateLoading, setUpdateLoading] = useState<{ id: string, load: boolean }>({ id: '', load: false })
 
 
     console.log(bookingList?.data)
@@ -23,80 +24,126 @@ const ConTentList: React.FC = () => {
         setUpdateBookId(id)
     }
 
-    const handleUpdate = async () => {
-        if (!updatedBookId || !countOfTicket) {
-            return { msg: "Must be add id and count" }
+    const handleUpdate = async (id: string) => {
+        if (!updatedBookId) {
+            toast.error("Please change the counter");
+            return;
         }
+
+        if (countOfTicket === null || countOfTicket === undefined) {
+            toast.error("Count is required");
+            return;
+        }
+
+        setUpdateLoading({ id, load: true });
 
         try {
-            const bd = { useCount: countOfTicket }
-            const res = await upDateTicket(bd, updatedBookId)
+            const bd = { useCount: countOfTicket };
+
+            const res = await upDateTicket(bd, updatedBookId);
+
             if (res?.success) {
-                toast.success('update successfully!')
-                refetch()
+                toast.success("Update successfully!");
+                refetch();
+            } else {
+                toast.error("Update failed!");
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
+            console.log(err);
+            toast.error("Something went wrong");
+        } finally {
+            setCountOfTicket(null);
+            setUpdateBookId(null);
+            setUpdateLoading({ id: "", load: false }); // ✅ ALWAYS RESET HERE
         }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        catch (err: any) {
-            console.log(err)
-        }
-        finally {
-            setCountOfTicket(null)
-            setUpdateBookId(null)
-        }
+    };
 
 
+
+
+    if (error) {
+        return <div className='flex justify-center items-center min-h-screen'>
+            <h1>Someting Wrong!!</h1>
+        </div>
     }
-
-
-
-
 
     return (
         <div className="  min-h-screen text-white my-4">
 
 
-            <div className="flex gap-3">
+            <div className='flex sm:flex-row flex-col  justify-between '>
 
-                {/* PAID */}
-                <button
-                    onClick={() => setStatus("PAID")}
-                    className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-300
+                <div className="flex gap-3">
+
+                    {/* PAID */}
+                    <button
+                        onClick={() => {
+                            setStatus("PAID")
+                            setPage(1)
+                        }}
+                        className={`px-4  rounded-l-full rounded-r-full text-sm font-semibold border transition-all duration-300
     ${status === "PAID"
-                            ? "bg-green-500/20 text-green-400 border-green-400"
-                            : "bg-transparent text-gray-400 border-gray-600"
-                        }`}
-                >
-                    PAID
-                </button>
+                                ? "bg-green-500/20 text-green-400 border-green-400"
+                                : "bg-transparent text-gray-400 border-gray-600"
+                            }`}
+                    >
+                        PAID
+                    </button>
 
-                {/* FAILED */}
-                <button
-                    onClick={() => setStatus("FAILED")}
-                    className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-300
+                    
+
+                    {/* FAILED */}
+                    <button
+                        onClick={() => {
+                            setStatus("FAILED")
+                            setPage(1)
+                        }}
+                        className={`px-4   rounded-l-full rounded-r-full  text-sm font-semibold border transition-all duration-300
     ${status === "FAILED"
-                            ? "bg-red-500/20 text-red-400 border-red-400"
-                            : "bg-transparent text-gray-400 border-gray-600"
-                        }`}
-                >
-                    FAILED
-                </button>
+                                ? "bg-red-500/20 text-red-400 border-red-400"
+                                : "bg-transparent text-gray-400 border-gray-600"
+                            }`}
+                    >
+                        FAILED
+                    </button>
 
-                {/* UNPAID */}
-                <button
-                    onClick={() => setStatus("UNPAID")}
-                    className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-300
+                    {/* UNPAID */}
+                    <button
+                        onClick={() => {
+                            setStatus("UNPAID")
+                            setPage(1)
+                        }}
+                        className={`px-4  rounded-l-full rounded-r-full  text-sm font-semibold border transition-all duration-300
     ${status === "UNPAID"
-                            ? "bg-pink-500/20 text-pink-400 border-pink-400"
-                            : "bg-transparent text-gray-400 border-gray-600"
-                        }`}
-                >
-                    UNPAID
-                </button>
+                                ? "bg-pink-500/20 text-pink-400 border-pink-400"
+                                : "bg-transparent text-gray-400 border-gray-600"
+                            }`}
+                    >
+                        UNPAID
+                    </button>
+
+                </div>
+
+                <div className="max-w-md mt-5 sm:mt-0">
+              
+
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Enter the transaction ID"
+                            className="w-full px-4 py-2 pl-10 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                        />
+
+                        {/* Icon */}
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            #
+                        </span>
+                    </div>
+                </div>
 
             </div>
-
 
             <div className="overflow-x-auto mt-6 rounded-xl 
   bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl">
@@ -195,7 +242,7 @@ const ConTentList: React.FC = () => {
                                                 ['FAILED', 'UNPAID'].includes(item?.paymentStatus) ||
                                                 Number(item?.ticketCount) === Number(item?.useCount)
                                             }
-                                            onClick={handleUpdate}
+                                            onClick={() => handleUpdate(item?._id)}
                                             className={`relative px-2 py-1 rounded-lg font-semibold text-sm text-white 
   shadow-lg transition-all duration-300
   before:absolute before:inset-0 before:rounded-lg 
@@ -207,8 +254,17 @@ const ConTentList: React.FC = () => {
                                                     : "bg-linear-to-r from-[#FF1493] to-[#FF00FF] hover:scale-105 cursor-pointer"
                                                 }`}
                                         >
-                                            ✨ Update
+                                            {updateLoading.id === item._id && updateLoading.load ? (
+                                                <>
+                                                    <Loader2 className="animate-spin w-4 h-4" />
+                                                    Updating...
+                                                </>
+                                            ) : (
+                                                "✨ Update"
+                                            )}
                                         </button>
+
+
 
                                     </div>
                                 </td>
@@ -239,11 +295,31 @@ const ConTentList: React.FC = () => {
                         <option value={40}>40</option>
                     </select>
                 </div>
-                <button className="px-4 py-2 rounded-lg font-semibold cursor-pointer bg-[#C7B268] text-black hover:opacity-80 transition">
+
+
+                <button
+                    disabled={1 === page}
+                    onClick={() => setPage(page - 1)}
+                    className={`px-4 py-2 rounded-lg font-semibold text-white transition
+    ${1 === page
+                            ? "bg-gray-500 opacity-50 cursor-not-allowed"
+                            : "bg-linear-to-r from-[#FF1493] to-[#FF00FF] hover:opacity-80 cursor-pointer"
+                        }
+  `}
+                >
                     <ChevronLeft />
                 </button>
 
-                <button className="px-4 py-2 rounded-lg font-semibold bg-linear-to-r cursor-pointer from-[#FF1493] to-[#FF00FF] text-white hover:opacity-80 transition">
+                <button
+                    disabled={bookingList?.meta?.totalpage === bookingList?.meta?.page}
+                    onClick={() => setPage(page + 1)}
+                    className={`px-4 py-2 rounded-lg font-semibold text-white transition
+    ${bookingList?.meta?.totalpage === bookingList?.meta?.page
+                            ? "bg-gray-500 opacity-50 cursor-not-allowed"
+                            : "bg-linear-to-r from-[#FF1493] to-[#FF00FF] hover:opacity-80 cursor-pointer"
+                        }
+  `}
+                >
                     <ChevronRight />
                 </button>
             </div>
