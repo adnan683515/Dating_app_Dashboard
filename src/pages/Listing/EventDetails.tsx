@@ -261,15 +261,17 @@ export default function EventDetails() {
         {/* Venue + Fee + Address */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6">
           <div className="p-4 bg-white/5 rounded-2xl flex items-center gap-3">
-            <MapPin />
-            <p>{data?.venue}</p>
+           <House />
+
+            <p>Venue: {data?.venue}</p>
           </div>
           <div className="p-4 bg-white/5 rounded-2xl flex items-center gap-3">
             <BadgeDollarSign />
             <p>{data?.fee}$</p>
           </div>
           <div className="p-4 bg-white/5 rounded-2xl flex items-center gap-3">
-            <House />
+    
+                     <MapPin />
             <p>{data?.addRess}</p>
           </div>
         </div>
