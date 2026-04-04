@@ -95,15 +95,36 @@ export default function EventPage() {
   return (
     <div className=" bg-black min-h-screen text-white">
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 my-3 sm:grid-cols-2 md:grid-cols-5 gap-6">
         {Object.entries(statusData).map(([status, count]) => (
           <div
             key={status}
-            className={`relative p-6 rounded-2xl text-white flex flex-col items-center justify-center shadow-xl bg-linear-to-br ${statusColors[status]} transform hover:scale-105 transition-all duration-300`}
+            className={`relative  animate-pulse overflow-hidden p-6 rounded-2xl text-white flex flex-col items-center justify-center 
+  shadow-xl backdrop-blur-xl border border-white/10 
+  bg-linear-to-br ${statusColors[status]} 
+  before:absolute before:inset-0 before:bg-white/10 before:backdrop-blur-2xl before:rounded-2xl
+  transform hover:scale-105 transition-all duration-300 group`}
           >
-            <div className="absolute top-4 right-4 opacity-30">{statusIcons[status]}</div>
+            {/* Shine Layer */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700">
+              <div className="absolute -top-1/2 left-[-50%] w-[200%] h-[200%] 
+    bg-linear-to-r from-transparent via-white/30 to-transparent 
+    rotate-12 -translate-x-full group-hover:translate-x-full 
+    transition-transform duration-1000"></div>
+            </div>
+
+            {/* Glow Background Blur */}
+            <div className={`absolute inset-0 blur-2xl opacity-30 ${statusColors[status]}`}></div>
+
+            {/* Icon */}
+            <div className="absolute top-4 right-4 opacity-30 z-10">
+              {statusIcons[status]}
+            </div>
+
+            {/* Content */}
             <h3 className="text-lg font-bold z-10">{status}</h3>
             <p className="text-4xl font-extrabold z-10 mt-2">{count}</p>
+
             <div className="mt-3 w-10 h-1 rounded-full bg-white/30 z-10"></div>
           </div>
         ))}
@@ -132,12 +153,14 @@ export default function EventPage() {
                 key={tag}
                 onClick={() => setSeletectTag(tag)}
                 className={`
+                  
       relative px-4 py-1.5 
       text-sm font-medium 
       rounded-full 
       shadow-md 
       cursor-pointer 
-      transition-all duration-300 hover:scale-105
+                
+      transition-all  animate-pulse duration-300 hover:scale-105
 
       ${tagStyles[tag as EventTags]}
 
@@ -168,7 +191,7 @@ export default function EventPage() {
               onClick={() => setSelectedStatus(key)}
               className={`
         px-4 py-1.5 rounded-full text-sm font-medium 
-        border transition-all duration-300 cursor-pointer
+        border transition-all animate-pulse duration-300 cursor-pointer
 
         ${selectedStatus === key
                   ? `${value.color} scale-105 shadow-md`
@@ -199,7 +222,9 @@ export default function EventPage() {
 
       <div className="">
         <div className="overflow-x-auto mt-6 rounded-xl 
-  bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl">
+
+         bg-linear-to-br from-black via-gray-900 to-black shadow-2xl 
+  backdrop-blur-lg  border border-white/10 ">
           <table className="min-w-full rounded-xl divide-y divide-gray-200">
             <thead className="bg-white/5 rounded-xl  backdrop-blur-lg border border-white/10 shadow-xl ">
               <tr>
@@ -224,10 +249,10 @@ export default function EventPage() {
                   No Events Found
                 </td>
               </tr> : data?.data?.map((event) => (
-                <tr key={event._id} className="border-t border-white/10 hover:bg-white/10 transition">
-                  <td className="px-4 py-2 flex items-center gap-3">
+                <tr key={event._id} className="border-t animate-pulse border-white/10 hover:bg-white/10 transition">
+                  <td className="px-4  py-2 flex items-center gap-3">
 
-                    <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
+                    <span className="w-2 animate-pulse h-2 bg-pink-500 rounded-full"></span>
 
                     <img
                       src={event.image || "https://via.placeholder.com/60"}
@@ -241,12 +266,7 @@ export default function EventPage() {
                   </td>
                   <td className="px-4 py-2 text-white">{event.category.name}</td>
                   <td className="px-4 py-2 text-white">{event.fee}$</td>
-                  {/* <td className="px-4 py-2 text-white text-center">
-                    {event?.lineupMember > 0
-                      ? `${event.lineupMember} lineup members`
-                      : "No lineup yet"}
-                      {event?.lineupMember}
-                  </td> */}
+
 
                   <td className="px-4 py-2 text-white text-center">
                     {event.status

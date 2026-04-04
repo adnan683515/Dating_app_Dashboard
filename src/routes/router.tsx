@@ -12,6 +12,7 @@ import SettginsPage from "../pages/SettingsPage/SettginsPage";
 import UserManagement from "../pages/UserManagement/UserManagement";
 import Verification from "../pages/Verification/Verification";
 import EventPage from "../pages/Listing/EventPage";
+import PrivetRoutes from "./PrivetRoutes";
 
 
 
@@ -23,10 +24,10 @@ export const router = createBrowserRouter([
     },
     {
         path: "/dashboard",
-        Component: MainLayout,
-        // element: <PrivetRoutes>
-        //     <MainLayout></MainLayout>
-        // </PrivetRoutes>,
+        // Component: MainLayout,
+        element: <PrivetRoutes>
+            <MainLayout></MainLayout>
+        </PrivetRoutes>,
         children: [
             {
                 // index: true,

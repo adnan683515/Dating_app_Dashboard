@@ -110,7 +110,7 @@ const MainLayout: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <aside className="hidden lg:flex flex-col w-70 bg-[#000000] border-r border p-2.5 sticky top-0 h-screen shrink-0">
+      <aside className="hidden lg:flex flex-col w-70  border-r border p-2.5 sticky top-0 h-screen shrink-0  bg-linear-to-br from-black via-gray-900 to-black shadow-2xl">
         <SidebarContent location={location.pathname} items={menuItems} />
       </aside>
 

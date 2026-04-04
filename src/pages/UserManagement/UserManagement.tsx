@@ -139,7 +139,7 @@ const UserManagement: React.FC = () => {
             </tr>
           </thead>
 
-          <tbody className="bg-[#0B1120]">
+          <tbody className=" bg-white/5 backdrop-blur-lg  border border-white/10 shadow-xl">
             {userLoading ? <tr>
               <td colSpan={10}>
                 <div className="flex justify-center items-center py-10">
@@ -153,7 +153,7 @@ const UserManagement: React.FC = () => {
               >
                 {/* 👤 User Info */}
                 <td className="px-4 py-3 flex items-center gap-3">
-                  <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
+                  <span className="w-2 h-2 animate-bounce bg-pink-500 rounded-full"></span>
                   <img
                     src={
                       user.image ||
@@ -162,7 +162,7 @@ const UserManagement: React.FC = () => {
                     alt="user"
                     className="w-10 h-10 rounded-full object-cover border border-[#C7B268]"
                   />
-                  <span className="font-medium">{user.displayName}</span>
+                  <span className="font-medium  ">{user.displayName}</span>
                 </td>
 
                 {/* Location */}

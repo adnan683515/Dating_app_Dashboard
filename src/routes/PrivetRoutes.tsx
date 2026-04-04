@@ -1,24 +1,24 @@
-// import { Navigate } from "react-router";
-// import AuthHook from "../Hooks/AuthHook";
-// import Loading from "../components/Loading";
+import { Navigate } from "react-router";
+import AuthHook from "../Hooks/AuthHook";
+import Loading from "../components/Loading";
 
-// type Props = {
-//   children: React.ReactNode;
-// };
+type Props = {
+  children: React.ReactNode;
+};
 
-// const PrivetRoutes = ({ children }: Props) => {
+const PrivetRoutes = ({ children }: Props) => {
 
-//   const { user, loading } = AuthHook();
+  const { user, loading } = AuthHook();
 
-//   if (loading) {
-//     return <Loading></Loading>;
-//   }
+  if (loading) {
+    return <Loading></Loading>;
+  }
 
-//   if (!user) {
-//     return <Navigate to="/" />;
-//   }
+  if (!user) {
+    return <Navigate to="/" />;
+  }
 
-//   return children
-// };
+  return children
+};
 
-// export default PrivetRoutes;
+export default PrivetRoutes;

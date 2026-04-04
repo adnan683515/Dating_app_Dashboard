@@ -1,5 +1,8 @@
-import { CircleCheck, Clock, Facebook, Menu, TrendingUp, Users } from "lucide-react";
+import { CircleCheck, Facebook, Menu, TrendingUp, Users } from "lucide-react";
 import EventsMap from "./EventsMap";
+import { useQuery } from "@tanstack/react-query";
+import { topFiveEvents } from "./dashboard";
+import { Link } from "react-router";
 // import AuthHook from "../../Hooks/AuthHook";
 
 
@@ -35,46 +38,6 @@ const statsGrid = [
 ]
 
 
-
-const listing = [
-  {
-    title: 'New Listing Created',
-    subtitle: '2019 BMW M3 - Listed by Mike Johnson',
-    time: '12 minutes ago',
-    icon: <Clock size={16} />
-  },
-  {
-    title: 'Listing Boosted',
-    subtitle: 'Turbo Kit - Boosted for 7 days',
-    time: '12 minutes ago',
-    icon: <Clock size={16} />
-  },
-  {
-    title: 'Verification Request',
-    subtitle: 'AutoParts Pro requested shop verification',
-    time: '12 minutes ago',
-    icon: <Clock size={16} />
-  },
-  {
-    title: 'New Listing Created',
-    subtitle: 'John Smith registered as a seller',
-    time: '1 minutes ago',
-    icon: <Clock size={16} />
-  },
-  {
-    title: 'New User Registration',
-    subtitle: '2019 BMW M3 - Listed by Mike Johnson',
-    time: '12 hours ago',
-    icon: <Clock size={16} />
-  },
-
-  {
-    title: 'New Listing Created',
-    subtitle: '2019 BMW M3 - Listed by Mike Johnson',
-    time: '12 minutes ago',
-    icon: <Clock size={16} />
-  },
-]
 
 
 const Quicks = [
@@ -116,6 +79,12 @@ export default function Dashboard() {
   // const userData = AuthHook()
 
   // console.log(userData)
+
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['topFiveEvents'],
+    queryFn: topFiveEvents,
+  });
 
   return (
     <div className="mt-5 ">
@@ -172,6 +141,8 @@ export default function Dashboard() {
 
 
           <div className="lg:w-1/3 flex flex-col gap-y-6">
+
+
             <div className=" bg-[#111827] h-1/2 border border-white/10 rounded-2xl px-5.5 py-6.5">
 
               <div className="space-y-3">
@@ -210,9 +181,12 @@ export default function Dashboard() {
 
             </div>
 
+
+
+
           </div>
 
-          
+
 
         </div>
 
@@ -223,8 +197,129 @@ export default function Dashboard() {
 
 
 
+      <div className="text-center my-6">
+     
+
+        <h2 className="mt-4   text-3xl md:text-5xl font-extrabold text-white relative inline-block">
+         <h1> Top 5 Events</h1>
+          <span className="block text-pink-500 text-lg md:text-xl mt-1">
+            Where Sparks Fly 💖
+          </span>
+          {/* Glow effect */}
+          <span className="absolute inset-0 blur-xl opacity-30 bg-pink-500 rounded-full"></span>
+        </h2>
+
+      
+      </div>
 
 
+
+
+
+
+      <div className="w-full mt-10">
+
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto rounded-3xl bg-linear-to-br from-black via-gray-900 to-black shadow-2xl border border-pink-500/20">
+          <table className="w-full text-left border-collapse text-gray-200">
+
+            <thead className="bg-linear-to-r from-pink-500/20 to-purple-500/20 text-gray-300 text-xs uppercase tracking-wider">
+              <tr>
+                <th className="p-5">Event</th>
+                <th className="p-5">Category</th>
+                <th className="p-5">Venue</th>
+                <th className="p-5">Attendance</th>
+                <th className="p-5 text-center">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {data?.data?.map((event: any) => (
+                <tr key={event._id} className="border-b border-white/10 hover:bg-white/5 transition duration-300">
+
+                  {/* Event */}
+                  <td className="p-5 flex items-center gap-4">
+                    <img src={event.image} className="w-14 h-14 rounded-2xl object-cover border border-pink-400/40" />
+                    <div>
+                      <p className="font-semibold text-white">{event.title}</p>
+                      <p className="text-xs text-gray-400 line-clamp-1 max-w-50">
+                        {event.descripton}
+                      </p>
+                    </div>
+                  </td>
+
+                  <td className="p-5">
+                    <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300">
+                      {event.category?.name}
+                    </span>
+                  </td>
+
+                  <td className="p-5 text-gray-400">📍 {event.venue}</td>
+
+                  <td className="p-5">
+                    <span className="px-3 py-1 text-sm bg-pink-500/20 text-pink-300 rounded-full">
+                      {event.attendanceTotal} joined 💖
+                    </span>
+                  </td>
+
+                  <td className="p-5 text-center">
+                    <Link to={`/dashboard/add-event/event-details/${event?._id}`}>
+                      <button className="px-5 py-2 bg-linear-to-r from-pink-500 to-rose-500 text-white rounded-xl">
+                        View
+                      </button>
+                    </Link>
+                  </td>
+
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile Cards */}
+        <div className="md:hidden space-y-4">
+          {data?.data?.map((event: any) => (
+            <div
+              key={event._id}
+              className="bg-gray-900 border border-pink-500/20 rounded-2xl p-4 shadow-lg"
+            >
+              <div className="flex gap-4 items-center">
+                <img
+                  src={event.image}
+                  className="w-16 h-16 rounded-xl object-cover"
+                />
+
+                <div>
+                  <p className="text-white font-semibold">{event.title}</p>
+                  <p className="text-xs text-gray-400 line-clamp-1">
+                    {event.descripton}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-3 flex justify-between text-sm text-gray-400">
+                <span>{event.category?.name}</span>
+                <span>📍 {event.venue}</span>
+              </div>
+
+              <div className="mt-2">
+                <span className="px-3 py-1 text-xs bg-pink-500/20 text-pink-300 rounded-full">
+                  {event.attendanceTotal} joined 💖
+                </span>
+              </div>
+
+              <div className="mt-4 text-right">
+                <Link to={`/dashboard/add-event/event-details/${event?._id}`}>
+                  <button className="px-4 py-2 text-sm bg-linear-to-r from-pink-500 to-rose-500 text-white rounded-xl">
+                    View
+                  </button>
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+
+      </div>
 
     </div>
   )
